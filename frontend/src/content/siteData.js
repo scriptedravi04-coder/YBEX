@@ -325,6 +325,92 @@ export const creatorEconomyCards = [
   },
 ];
 
+export const aboutStats = [
+  { value: '44,234,521', label: 'total views generated till now' },
+  { value: '7+', label: 'years of experience' },
+  { value: '48+', label: 'brands grown from zero' },
+  { value: '24/7', label: 'online dominance' },
+];
+
+export const aboutTimeline = [
+  {
+    phase: 'The Past',
+    title: 'How it Started',
+    icon: '\u26A1',
+    description:
+      'YBEX began as a small digital collective, fueled by a passion for the creator economy and high-impact storytelling. We spent countless nights at our first desk setup, editing, strategizing, and building what would become a media powerhouse.',
+    images: [
+      'https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/project-uploads/7c61aa5b-4e89-46e8-88dd-f516d506f206/IMG_5740-resized-1772535490128.jpg',
+      'https://wtoixhtepdmnchdrbycr.supabase.co/storage/v1/object/public/ybex-images/img_1772540090712.jpg',
+      'https://wtoixhtepdmnchdrbycr.supabase.co/storage/v1/object/public/ybex-images/img_1772540106240.JPG',
+    ],
+  },
+  {
+    phase: 'The Growth',
+    title: 'Scaling Brands from Zero',
+    icon: '\uD83D\uDCC8',
+    description:
+      'We transitioned into a full-scale creative agency, helping dozens of brands grow their presence from scratch to millions of views. Our focus shifted to strategic growth, community building, and long-form storytelling that sticks.',
+    images: [
+      'https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/project-uploads/7c61aa5b-4e89-46e8-88dd-f516d506f206/Khiladi-Adda-Logo-300x150-1772536021921.png',
+      'https://wtoixhtepdmnchdrbycr.supabase.co/storage/v1/object/public/ybex-images/img_1772306313351.png',
+      'https://wtoixhtepdmnchdrbycr.supabase.co/storage/v1/object/public/ybex-images/img_1772703221334.png',
+      'https://wtoixhtepdmnchdrbycr.supabase.co/storage/v1/object/public/ybex-images/img_1772703195923.png',
+    ],
+  },
+  {
+    phase: 'The Present',
+    title: 'A New Chapter',
+    icon: '\uD83C\uDFE2',
+    description:
+      'After years of online dominance, we are finally opening our first physical office, our new creative hub for creators and brands. A high-energy space where ideas are born and projects are scaled to the next level. This is just the beginning of YBEX in the real world.',
+    images: [
+      'https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/project-uploads/7c61aa5b-4e89-46e8-88dd-f516d506f206/WhatsApp-Image-2026-03-03-at-16.53.33-resized-1772537477291.jpeg',
+      'https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/project-uploads/7c61aa5b-4e89-46e8-88dd-f516d506f206/WhatsApp-Image-2026-03-03-at-16.53.33-1-resized-1772537477299.jpeg',
+      'https://wtoixhtepdmnchdrbycr.supabase.co/storage/v1/object/public/ybex-images/img_1774791106732_j0qd2b7o4h.jpeg',
+    ],
+  },
+];
+
+export const aboutFounders = [
+  {
+    name: 'Sharadh',
+    role: 'Founder',
+    image: 'https://wtoixhtepdmnchdrbycr.supabase.co/storage/v1/object/public/ybex-images/img_1772304689425.png',
+  },
+  {
+    name: 'Ravi',
+    role: 'Founder',
+    image: 'https://wtoixhtepdmnchdrbycr.supabase.co/storage/v1/object/public/ybex-images/img_1773244595138_rh0x98htjph.png',
+  },
+];
+
+export const aboutPowerhouse = [
+  {
+    name: 'Himanshu',
+    role: 'CTO',
+    image: 'https://wtoixhtepdmnchdrbycr.supabase.co/storage/v1/object/public/ybex-images/img_1776930484123_p82p9zlpfts.jpeg',
+  },
+  {
+    name: 'Sarthak',
+    role: 'CTO',
+    image: 'https://wtoixhtepdmnchdrbycr.supabase.co/storage/v1/object/public/ybex-images/img_1776930737020_c0buf2i84vp.jpeg',
+  },
+  {
+    name: 'Vikas Malik',
+    role: 'CFO',
+    image: 'https://wtoixhtepdmnchdrbycr.supabase.co/storage/v1/object/public/ybex-images/img_1776930817477_d2yw6nrxxyv.jpeg',
+  },
+];
+
+export const aboutJoinStrip = [
+  'Social Media',
+  'UGC Content',
+  'Talent Marketing',
+  'In-House Teams',
+  
+];
+
 export const footerSocialLinks = [
   { label: 'Instagram', href: 'https://instagram.com/' },
   { label: 'YouTube', href: 'https://youtube.com/' },

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useSpring, useTransform, AnimatePresence } from 'motion/react';
+import AboutStorySection from '../../components/AboutStorySection';
 import {
   aboutHighlightCopy,
   clientLogos,
@@ -837,30 +838,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section ref={aboutSectionRef} className="section-block about-highlight-section">
-        <div className="container about-highlight-shell">
-          <div className="clone-pill">
-            <span>About Us</span>
-          </div>
-
-          <p className="about-highlight-copy" aria-label={aboutHighlightCopy}>
-            {aboutWords.map((word, index) => {
-              const threshold = index / aboutWords.length;
-              const isActive = aboutProgress >= threshold;
-
-              return (
-                <span key={`${word}-${index}`} className={isActive ? 'is-active' : ''}>
-                  {word}{' '}
-                </span>
-              );
-            })}
-          </p>
-
-          <Link to="/contact" className="button button-primary clone-book-button">
-            Book an Appointment
-          </Link>
-        </div>
-      </section>
+      <AboutStorySection />
 
       <section className="section-block talents-section">
         <div className="container">
