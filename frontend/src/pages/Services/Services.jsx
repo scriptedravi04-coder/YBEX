@@ -2,85 +2,71 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 
-const THEME_COLOR = '#7D4CF6';
+const THEME_COLOR = '#E4F141';
 
 const ybexServices = [
   {
-    id: 'brand-identity',
-    eyebrow: 'ब्रांड पहचान',
-    title: 'Brand Identity',
-    description: 'Logo, visual identity, brand guidelines — everything your brand needs to look legendary from day one.',
-    tags: ['Logo Design', 'Brand Guidelines', 'Visual Identity', 'Packaging Design', 'Brand Voice']
-  },
-  {
-    id: 'brand-strategy',
-    eyebrow: 'ब्रांड रणनीति',
-    title: 'Brand Strategy',
-    description: 'Deep market research, competitor analysis, positioning — we map exactly where your brand fits and how to win.',
-    tags: ['Market Research', 'Competitor Analysis', 'Brand Positioning', 'Audience Mapping', 'Growth Roadmap']
-  },
-  {
-    id: 'content-creation',
-    eyebrow: 'कंटेंट क्रिएशन',
-    title: 'Content Creation',
-    description: 'Reels, videos, photoshoots, copywriting — content that stops the scroll and gets real results.',
-    tags: ['Reels & Videos', 'Brand Photography', 'Copywriting', 'YouTube Content', 'Ad Creatives']
-  },
-  {
     id: 'paid-pr',
-    eyebrow: 'पेड पीआर',
+    eyebrow: 'Paid PR',
     title: 'Paid PR',
-    description: 'Get featured on top publications, news sites, and media houses. Build authority that money can\'t fake.',
-    tags: ['News Placements', 'Press Releases', 'Publication Outreach', 'Brand Story', 'Authority Building']
+    description: 'Build authority where trust matters most. Get featured across top-tier publications, digital media, and industry platforms to strengthen credibility, improve search visibility, and create the social proof your brand needs to convert faster.',
+    tags: ['Media Placements', 'Press Release Writing', 'Publication Outreach', 'Brand Story Coverage', 'Authority Building']
   },
   {
-    id: 'talent-marketing',
-    eyebrow: 'टैलेंट मार्केटिंग',
-    title: 'Talent Marketing',
-    description: 'We connect brands with the right creators — scouting, pitching, managing deals, and measuring impact end-to-end.',
-    tags: ['Creator Discovery', 'Campaign Strategy', 'Deal Negotiation', 'Content Review', 'ROI Tracking']
+    id: 'social-media-management',
+    eyebrow: 'Social Media Management',
+    title: 'Social Media Management',
+    description: 'We build internet relevance, not just social media pages. Our Gen-Z driven team creates trend-aware, human-first content designed to stop the scroll and grow your brand across platforms. From strategy to execution, we handle your social presence across platforms so your brand stays active, relevant, and growth-focused without internal bottlenecks.',
+    tags: ['Content Strategy', 'Daily Posting Calendar', 'Community Management', 'Trend & Hashtag Research', 'Performance Reports']
   },
   {
-    id: 'social-media',
-    eyebrow: 'सोशल मीडिया',
-    title: 'Social Media',
-    description: 'Full social media management — strategy, daily content, community, and consistent growth.',
-    tags: ['Platform Strategy', 'Daily Calendar', 'Community Mgmt', 'Hashtags', 'Monthly Reports']
+    id: 'brand-architecture',
+    eyebrow: 'Brand Architecture',
+    title: 'Brand Architecture',
+    description: 'A clear brand structure that aligns every touchpoint. We define your positioning, messaging, and visual identity so your audience instantly understands what you stand for and why you matter.',
+    tags: ['Brand Positioning', 'Messaging Framework', 'Visual Identity System', 'Tone of Voice', 'Brand Guidelines']
   },
   {
-    id: 'website-tech',
-    eyebrow: 'वेबसाइट और टेक',
-    title: 'Website & Tech',
-    description: 'High-converting websites, landing pages, and e-com stores that look premium and perform even better.',
-    tags: ['Website Design', 'E-commerce Stores', 'Landing Pages', 'Website SEO', 'Speed Optimization']
+    id: 'creative-production',
+    eyebrow: 'Creative Production',
+    title: 'Creative Production',
+    description: 'Gen-Z driven creative production built to make brands impossible to ignore. From reels to ad creatives, we produce scroll-stopping content that communicates your value and drives measurable results.',
+    tags: ['Concept Development & Storytelling', 'Trend-Driven Reels & Short-Form Content', 'Pre-Production to Post-Production Management', 'High-Converting Ad Creatives', 'Graphic Design & Motion Assets', 'Studio & Outdoor Shoots', 'Platform-Optimized Content Strategy']
   },
   {
-    id: 'studio-setups',
-    eyebrow: 'स्टूडियो सेटअप',
-    title: 'Studio Setups',
-    description: 'Professional creator studios at your location. Acoustics, lighting, gear — we build the full setup.',
-    tags: ['Acoustic Treatment', 'Pro Lighting', 'Camera Advisory', 'Creator Desks', 'Workflow Setup']
+    id: 'talent-management',
+    eyebrow: 'Talent Management',
+    title: 'Talent Management',
+    description: 'The right creators, managed the right way. We discover, negotiate, and coordinate with influencers and creators to ensure every collaboration is smooth, strategic, and ROI-driven.',
+    tags: ['Premium Brand Collaborations', 'Creator Networking Trips & Experiences', 'Studio Access for Content Shoots', 'Dedicated Experts for Negotiation & Deal Handling', 'Campaign Planning & Coordination', 'Deliverable & Timeline Management', 'Performance Analytics & Reporting']
   },
   {
     id: 'performance-marketing',
-    eyebrow: 'परफॉरमेंस मार्केटिंग',
+    eyebrow: 'Performance Marketing',
     title: 'Performance Marketing',
-    description: 'Google Ads, Meta Ads, data-driven campaigns with real ROAS. We spend your money like it\'s ours.',
-    tags: ['Google & Meta Ads', 'Conversion Opt.', 'Funnel Strategy', 'Retargeting', 'Weekly Analytics']
+    description: 'Data-backed campaigns focused on profitable growth. We run and optimize ad campaigns across Google and Meta to generate leads, sales, and measurable returns on every rupee spent.',
+    tags: ['Google Ads', 'Meta Ads', 'Funnel Strategy', 'Conversion Optimization', 'Retargeting', 'SMS/RCS Marketing']
   },
   {
-    id: 'talent-growth',
-    eyebrow: 'टैलेंट ग्रोथ',
-    title: 'Talent Growth',
-    description: 'For creators, founders, and athletes who want to build a personal brand that actually pays.',
-    tags: ['Personal Brand', 'Platform Growth', 'Monetization', 'Partnerships', 'Audience Building']
+    id: 'in-house-team-setups',
+    eyebrow: 'In-House Team Setups',
+    title: 'In-House Team Setups',
+    description: 'Our marketing experts, embedded directly in your office. We deploy dedicated team members from our agency to work from your location, ensuring faster communication, real-time execution, and complete alignment with your internal team.',
+    tags: ['Dedicated On-Site Marketing Executive', 'Zero Communication Gaps', 'Daily Coordination & Standups', 'Real-Time Execution', 'Full Agency Support', 'Scalable Team Expansion']
   },
   {
-    id: 'ugc-services',
-    eyebrow: 'यूजीसी सर्विसेज',
-    title: 'UGC Services',
-    description: 'User-generated style content that feels real, converts better, and costs less than traditional ads. Built for D2C brands.',
-    tags: ['UGC Video', 'Authentic Briefs', 'Product Demos', 'Testimonial Ads', 'Ad Assets']
+    id: 'website-tech',
+    eyebrow: 'Website & Tech',
+    title: 'Website & Tech',
+    description: 'Digital infrastructure built to convert. We create high-performance websites, landing pages, and tech systems that support marketing, improve user experience, and maximize conversions.',
+    tags: ['Website Design', 'Landing Pages', 'E-commerce Stores', 'App Development', 'Technical SEO', 'Speed Optimization']
+  },
+  {
+    id: 'content-ecosystem',
+    eyebrow: 'Content Ecosystem',
+    title: 'Content Ecosystem',
+    description: 'A connected system where every piece of content works together. We turn one idea into multi-platform content — helping brands stay consistent, visible, and culturally relevant across every digital touchpoint.',
+    tags: ['Multi-Platform Content Systems', 'Reels, Ads & Brand Content', 'SEO & Search Visibility', 'Content Repurposing Engine', 'Distribution & Growth Workflow', 'Audience-Centric Content Strategy']
   }
 ];
 
@@ -131,7 +117,7 @@ export default function Services() {
         }
         .feature-card:hover { 
           border-color: ${THEME_COLOR} !important; 
-          box-shadow: 0 8px 30px rgba(125, 76, 246, 0.12);
+          box-shadow: 0 8px 30px rgba(228, 241, 65, 0.18);
           transform: translateY(-4px);
         }
         
@@ -141,7 +127,7 @@ export default function Services() {
           font-weight: 600; 
           padding: 6px 10px; 
           border-radius: 6px; 
-          background: rgba(125, 76, 246, 0.08); 
+          background: rgba(228, 241, 65, 0.12); 
           color: ${THEME_COLOR}; 
         }
         
@@ -152,7 +138,7 @@ export default function Services() {
           top: 0;
           width: 2px;
           height: 100%;
-          background: rgba(125, 76, 246, 0.15);
+          background: rgba(228, 241, 65, 0.15);
         }
         .timeline-progress {
           position: absolute;
@@ -174,7 +160,7 @@ export default function Services() {
           height: 12px;
           border-radius: 50%;
           background: ${THEME_COLOR};
-          box-shadow: 0 0 0 4px rgba(125, 76, 246, 0.2);
+          box-shadow: 0 0 0 4px rgba(228, 241, 65, 0.2);
         }
         .process-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 8px; }
         .process-day { font-size: 13px; font-weight: 700; color: ${THEME_COLOR}; text-transform: uppercase; letter-spacing: 1.2px; }
@@ -183,8 +169,8 @@ export default function Services() {
         .inhouse-inline-cta {
           margin-top: 48px;
           padding: 32px;
-          background: rgba(125, 76, 246, 0.05);
-          border: 1px solid rgba(125, 76, 246, 0.2);
+          background: rgba(228, 241, 65, 0.05);
+          border: 1px solid rgba(228, 241, 65, 0.2);
           border-radius: 20px;
           display: flex;
           align-items: center;
@@ -193,8 +179,8 @@ export default function Services() {
           transition: all 0.3s ease;
         }
         .inhouse-inline-cta:hover {
-          border-color: rgba(125, 76, 246, 0.4);
-          background: rgba(125, 76, 246, 0.08);
+          border-color: rgba(228, 241, 65, 0.4);
+          background: rgba(228, 241, 65, 0.08);
         }
         .inhouse-inline-btn {
           padding: 12px 24px;
@@ -211,7 +197,7 @@ export default function Services() {
         .inhouse-inline-btn:hover {
           background-color: ${THEME_COLOR};
           color: #fff;
-          box-shadow: 0 8px 20px rgba(125, 76, 246, 0.2);
+          box-shadow: 0 8px 20px rgba(228, 241, 65, 0.18);
         }
 
         @media (max-width: 640px) {
@@ -235,6 +221,18 @@ export default function Services() {
           <p className="section-copy">
             We handle everything in-house — strategy, content, design, influencer management, and execution. Real creators. Real results. No ghosting.
           </p>
+          <motion.p
+            style={{
+              maxWidth: '840px',
+              margin: '24px auto 0',
+              color: 'var(--text-secondary, #888)',
+              lineHeight: 1.8,
+              fontSize: '1rem',
+            }}
+            variants={fadeUpVariant}
+          >
+            We eliminate the loopholes in your marketing ecosystem. From branding and content to media, ads, talent, and technology, we build an integrated growth system where every component works together seamlessly. No disconnected efforts, no communication gaps, and no wasted budgets — just a streamlined marketing engine designed to scale your business efficiently.
+          </motion.p>
         </motion.div>
 
         {/* Services Grid */}
@@ -359,7 +357,7 @@ export default function Services() {
           viewport={{ once: true }}
           style={{ marginTop: '64px' }}
         >
-          <div className="invoice-cta-card" style={{ borderColor: 'rgba(125, 76, 246, 0.15)' }}>
+          <div className="invoice-cta-card" style={{ borderColor: 'rgba(228, 241, 65, 0.15)' }}>
             <div className="invoice-cta-icon" style={{ color: THEME_COLOR }}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>

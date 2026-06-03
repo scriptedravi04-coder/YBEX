@@ -50,7 +50,7 @@ function MagneticLink({ children, to, className, isActive, onClick }) {
               left: '0',
               right: '0',
               height: '2px',
-              background: 'linear-gradient(90deg, #a78bfa, #7c3aed)',
+              background: 'linear-gradient(90deg, #E4F141, #E4F141)',
               borderRadius: '2px',
             }}
             transition={{ type: 'spring', stiffness: 380, damping: 30 }}
@@ -105,10 +105,10 @@ export default function Navbar() {
           z-index: 900;
           transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
           height: auto;
-          min-height: 60px;
+          min-height: 90px;
           display: flex;
           justify-content: center;
-          padding: 12px 20px 0;
+          padding: 16px 20px 0;
           background: transparent !important;
           border: none !important;
           backdrop-filter: none !important;
@@ -123,9 +123,9 @@ export default function Navbar() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0 18px;
-          height: 44px;
-          gap: 16px;
+          padding: 0 28px;
+          height: 70px;
+          gap: 24px;
           border-radius: 999px;
           background: rgba(6, 4, 14, 0.55);
           border: 1px solid transparent;
@@ -155,7 +155,7 @@ export default function Navbar() {
           border-color: rgba(0, 0, 0, 0.85);
           backdrop-filter: blur(28px);
           -webkit-backdrop-filter: blur(28px);
-          height: 40px;
+          height: 65px;
           box-shadow:
             0 0 0 1px rgba(255, 255, 255, 0.04),
             0 4px 24px rgba(0, 0, 0, 0.6),
@@ -187,22 +187,22 @@ export default function Navbar() {
           display: flex;
           align-items: center;
           text-decoration: none;
+          flex: 0 0 auto;
+          padding: 0 12px 0 0;
+          border-right: none;
+          margin-right: 24px;
         }
-        .brand-mark-word {
-          font-size: 1.5rem;
-          font-weight: 800;
-          letter-spacing: 0.02em;
-          color: #fff;
-          background: linear-gradient(135deg, #fff 0%, #a78bfa 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
+        .brand-mark img {
+          display: block;
+          height: 48px;
+          width: auto;
+          object-fit: contain;
         }
         .brand-glow {
           position: absolute;
           inset: -10px;
-          background: radial-gradient(circle at center, rgba(167,139,250,0.35) 0%, transparent 70%);
-          filter: blur(20px);
+          background: radial-gradient(circle at center, rgba(228,241,65,0.28) 0%, transparent 70%);
+          filter: blur(18px);
           opacity: 0;
           transition: opacity 0.3s ease;
           z-index: -1;
@@ -213,47 +213,58 @@ export default function Navbar() {
         .nav-actions {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 16px;
+          flex: 0 0 auto;
         }
         .desktop-nav {
           display: flex;
           align-items: center;
-          gap: 24px;
-          margin-left: auto;
+          gap: 32px;
+          margin-left: 0;
+          flex: 1;
+          justify-content: center;
         }
         .desktop-nav a {
           position: relative;
           overflow: visible;
           font-family: 'Plus Jakarta Sans', sans-serif;
-          font-weight: 500;
-          font-size: 0.85rem;
+          font-weight: 600;
+          font-size: 0.95rem;
           letter-spacing: 0.01em;
           transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-          padding: 6px 0;
+          padding: 8px 0;
+          color: rgba(255, 255, 255, 0.8);
+          border-right: none;
+        }
+        .desktop-nav a:last-child {
+          border-right: none;
         }
         .desktop-nav a:hover {
           transform: translateY(-2px);
-          text-shadow: 0 4px 20px rgba(167, 139, 250, 0.4);
-          color: #a78bfa;
+          text-shadow: 0 4px 20px rgba(228, 241, 65, 0.35);
+          color: #E4F141;
         }
         .nav-cta {
           position: relative;
           overflow: hidden;
-          padding: 0.45rem 0.9rem !important;
-          font-size: 0.75rem !important;
-          min-height: 32px;
+          padding: 0.65rem 1.4rem !important;
+          font-size: 0.85rem !important;
+          min-height: 44px;
           display: flex;
           align-items: center;
           justify-content: center;
           font-family: 'Plus Jakarta Sans', sans-serif;
-          font-weight: 600;
+          font-weight: 700;
           letter-spacing: 0.02em;
           transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-          border-radius: 10px;
+          border-radius: 999px;
+          background: #E4F141 !important;
+          color: #000 !important;
+          text-decoration: none;
         }
         .nav-cta:hover {
-          transform: translateY(-3px) scale(1.02);
-          box-shadow: 0 20px 40px rgba(139, 92, 246, 0.35);
+          transform: translateY(-3px) scale(1.05);
+          box-shadow: 0 20px 40px rgba(228, 241, 65, 0.35);
         }
         .nav-cta::before {
           content: '';
@@ -284,8 +295,8 @@ export default function Navbar() {
           padding: 0;
         }
         .theme-toggle-btn:hover {
-          background: rgba(139, 92, 246, 0.12);
-          border-color: rgba(167, 139, 250, 0.4);
+          background: rgba(228, 241, 65, 0.12);
+          border-color: rgba(228, 241, 65, 0.45);
           transform: translateY(-2px);
         }
         :root.light-theme .theme-toggle-btn {
@@ -309,18 +320,18 @@ export default function Navbar() {
             width: 42px;
             height: 42px;
             borderRadius: 12px;
-            border: 2px solid rgba(139, 92, 246, 0.5);
-            background: rgba(139, 92, 246, 0.12);
+            border: 2px solid rgba(228, 241, 65, 0.45);
+            background: rgba(228, 241, 65, 0.12);
             backdrop-filter: blur(10px);
             cursor: pointer;
             padding: 10px;
             gap: 4px;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.25);
+            box-shadow: 0 4px 15px rgba(228, 241, 65, 0.25);
           }
           .menu-toggle:hover {
-            background: rgba(139, 92, 246, 0.2);
-            border-color: rgba(167, 139, 250, 0.8);
+            background: rgba(228, 241, 65, 0.2);
+            border-color: rgba(228, 241, 65, 0.8);
             transform: scale(1.05);
           }
           .menu-toggle span {
@@ -329,8 +340,8 @@ export default function Navbar() {
             height: 2.5px;
             border-radius: 3px;
             transition: all 0.3s ease;
-            box-shadow: 0 0 8px rgba(167, 139, 250, 0.5);
-            background: linear-gradient(90deg, #a78bfa, #8b5cf6);
+            box-shadow: 0 0 8px rgba(228, 241, 65, 0.35);
+            background: #E4F141;
           }
         }
         
@@ -344,7 +355,8 @@ export default function Navbar() {
             padding: 0 16px;
             border-radius: 999px;
           }
-          .brand-mark-word { font-size: 1.3rem !important; }
+          .brand-mark { font-size: 1.1rem !important; border-right: none; padding: 0 12px; }
+          .brand-mark img { height: 42px; }
           .menu-toggle {
             width: 36px !important;
             height: 36px !important;
@@ -407,10 +419,10 @@ export default function Navbar() {
         }
         .mobile-nav-link:hover {
           padding-left: 10px;
-          color: #a78bfa;
+          color: #E4F141;
         }
         .mobile-nav-link.is-active {
-          color: #a78bfa;
+          color: #E4F141;
           font-weight: 600;
         }
       `}</style>
@@ -438,35 +450,12 @@ export default function Navbar() {
                 ease: 'easeInOut' 
               }}
             />
-            <motion.span 
-              className="brand-mark-word"
-              whileHover={{ 
-                scale: 1.05,
-                textShadow: '0 0 30px rgba(228,241,65,0.5)'
-              }}
+            <motion.img
+              src="/fgdfg.png"
+              alt="YBEX logo"
+              whileHover={{ scale: 1.03 }}
               transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            >
-              {'YBEX'.split('').map((char, i) => (
-                <motion.span
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ 
-                    delay: i * 0.1, 
-                    duration: 0.4,
-                    ease: [0.22, 1, 0.36, 1]
-                  }}
-                  whileHover={{
-                    color: '#E4F141',
-                    y: -2,
-                    transition: { duration: 0.2 }
-                  }}
-                  style={{ display: 'inline-block' }}
-                >
-                  {char}
-                </motion.span>
-              ))}
-            </motion.span>
+            />
           </Link>
 
           {/* Desktop nav */}
@@ -541,39 +530,7 @@ export default function Navbar() {
 
           {/* Actions */}
           <div className="nav-actions">
-            {/* Theme Toggle */}
-            <motion.button
-              type="button"
-              className="theme-toggle-btn"
-              onClick={toggleTheme}
-              aria-label={theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.55, duration: 0.4 }}
-              whileHover={{ scale: 1.1, rotate: theme === 'light' ? 180 : -180 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              <AnimatePresence mode="wait">
-                {theme === 'light' ? (
-                  <motion.span
-                    key="moon"
-                    initial={{ opacity: 0, rotate: -90 }}
-                    animate={{ opacity: 1, rotate: 0 }}
-                    exit={{ opacity: 0, rotate: 90 }}
-                    transition={{ duration: 0.2 }}
-                  >🌙</motion.span>
-                ) : (
-                  <motion.span
-                    key="sun"
-                    initial={{ opacity: 0, rotate: 90 }}
-                    animate={{ opacity: 1, rotate: 0 }}
-                    exit={{ opacity: 0, rotate: -90 }}
-                    transition={{ duration: 0.2 }}
-                  >☀️</motion.span>
-                )}
-              </AnimatePresence>
-            </motion.button>
-
+            {/* CTA Button */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -585,7 +542,7 @@ export default function Navbar() {
                   whileTap={{ scale: 0.98 }}
                   style={{ display: 'inline-block' }}
                 >
-                  Start a Project
+                  GET STARTED
                 </motion.span>
               </Link>
             </motion.div>
@@ -657,37 +614,6 @@ export default function Navbar() {
               }}
             >
               <div className="mobile-drawer-content">
-                {/* Theme Toggle */}
-                <motion.div
-                  className="mobile-theme-toggle"
-                  initial={{ opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 }}
-                >
-                  <span style={{ 
-                    fontSize: '1rem', 
-                    fontWeight: 500,
-                    color: theme === 'light' ? '#1a1a1a' : '#fff'
-                  }}>
-                    {theme === 'light' ? '☀️ Light Mode' : '🌙 Dark Mode'}
-                  </span>
-                  <button
-                    onClick={toggleTheme}
-                    style={{
-                      padding: '0.5rem 1rem',
-                      borderRadius: '20px',
-                      border: 'none',
-                      background: theme === 'light' ? 'rgba(124, 58, 237, 0.1)' : 'rgba(228, 241, 65, 0.15)',
-                      color: theme === 'light' ? '#7c3aed' : '#E4F141',
-                      fontSize: '0.8rem',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Switch to {theme === 'light' ? 'Dark' : 'Light'}
-                  </button>
-                </motion.div>
-
                 {/* Nav Links */}
                 {navItems.map((item, i) => (
                   <motion.div
@@ -716,7 +642,7 @@ export default function Navbar() {
                             width: '8px',
                             height: '8px',
                             borderRadius: '50%',
-                            background: theme === 'light' ? '#7c3aed' : '#E4F141',
+                            background: '#E4F141',
                           }}
                         />
                       )}
@@ -724,27 +650,7 @@ export default function Navbar() {
                   </motion.div>
                 ))}
                 
-                {/* CTA Button */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.15 + navItems.length * 0.05 + 0.1 }}
-                  style={{ marginTop: '1.5rem' }}
-                >
-                  <Link
-                    to="/get-started"
-                    className="button button-primary"
-                    onClick={() => setIsOpen(false)}
-                    style={{
-                      display: 'block',
-                      textAlign: 'center',
-                      padding: '1rem',
-                      fontSize: '1rem',
-                    }}
-                  >
-                    Start a Project →
-                  </Link>
-                </motion.div>
+
               </div>
             </motion.div>
           </>

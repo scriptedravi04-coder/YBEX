@@ -1,11 +1,11 @@
 export const navItems = [
-  { label: 'Home',      path: '/' },
-  { label: 'Services',  path: '/services' },
+  { label: 'Home', path: '/' },
+  { label: 'Our Creators', path: '/creators' },
+  { label: 'Services', path: '/services' },
   { label: 'Portfolio', path: '/portfolio' },
-  { label: 'Academy',   path: '/academy' },
-  { label: 'About',     path: '/about' },
-  { label: 'Contact',   path: '/contact' },
-  { label: 'Invoice',   path: '/invoice', highlight: true },
+  { label: 'Academy', path: '/academy' },
+  { label: 'About', path: '/about' },
+  { label: 'Invoice', path: '/invoice', highlight: true },
 ];
 
 export const heroGallery = [

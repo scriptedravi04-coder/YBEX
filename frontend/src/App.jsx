@@ -9,8 +9,7 @@ import Portfolio from './pages/Portfolio/Portfolio';
 import Academy from './pages/Academy/Academy';
 import About from './pages/About/About';
 import Contact from './pages/Contact/Contact';
-import GetStarted from './pages/GetStarted/GetStarted';
-import Offerings from './pages/Offerings/Offerings';
+import GetStarted from './pages/GetStarted/GetStarted';import Creators from './pages/Creators/Creators';import Offerings from './pages/Offerings/Offerings';
 import Invoice from './pages/Invoice/Invoice';
 import InHouseTeam from './pages/Services/InHouseTeam';
 
@@ -50,6 +49,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/offerings" element={<Offerings />} />
         <Route path="/services" element={<Services />} />
+        <Route path="/creators" element={<Creators />} />
         <Route path="/portfolio" element={<Portfolio />} />
         <Route path="/academy" element={<Academy />} />
         <Route path="/about" element={<About />} />
