@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const SuccessStory = require('../models/SuccessStory');
+const { protect } = require('../middleware/auth');
 
 // @route   GET /api/success-stories
 // @desc    Get all active success stories
 // @access  Public
 router.get('/', async (req, res) => {
   try {
-    const stories = await SuccessStory.find({ isActive: true })
+    const stories = await SuccessStory.find({ isActive: true, deletedAt: null })
       .sort({ order: 1, createdAt: -1 });
     res.json({ success: true, data: stories });
   } catch (error) {
@@ -19,9 +20,9 @@ router.get('/', async (req, res) => {
 // @route   GET /api/success-stories/admin
 // @desc    Get all success stories (including inactive) for admin
 // @access  Private (Admin)
-router.get('/admin', async (req, res) => {
+router.get('/admin', protect, async (req, res) => {
   try {
-    const stories = await SuccessStory.find()
+    const stories = await SuccessStory.find({ deletedAt: null })
       .sort({ order: 1, createdAt: -1 });
     res.json({ success: true, data: stories });
   } catch (error) {
@@ -33,7 +34,7 @@ router.get('/admin', async (req, res) => {
 // @route   POST /api/success-stories
 // @desc    Create a new success story
 // @access  Private (Admin)
-router.post('/', async (req, res) => {
+router.post('/', protect, async (req, res) => {
   try {
     const story = new SuccessStory(req.body);
     await story.save();
@@ -47,7 +48,7 @@ router.post('/', async (req, res) => {
 // @route   PUT /api/success-stories/:id
 // @desc    Update a success story
 // @access  Private (Admin)
-router.put('/:id', async (req, res) => {
+router.put('/:id', protect, async (req, res) => {
   try {
     const story = await SuccessStory.findByIdAndUpdate(
       req.params.id,
@@ -67,9 +68,13 @@ router.put('/:id', async (req, res) => {
 // @route   DELETE /api/success-stories/:id
 // @desc    Delete a success story
 // @access  Private (Admin)
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', protect, async (req, res) => {
   try {
-    const story = await SuccessStory.findByIdAndDelete(req.params.id);
+    const story = await SuccessStory.findByIdAndUpdate(
+      req.params.id,
+      { deletedAt: new Date(), deletedBy: req.user._id },
+      { new: true }
+    );
     if (!story) {
       return res.status(404).json({ success: false, error: 'Story not found' });
     }

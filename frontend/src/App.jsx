@@ -75,7 +75,6 @@ export default function App() {
       <Route path="/admin/scholarship" element={<AdminRoute><AdminPlaceholder title="Scholarship" icon="🎖️" description="Manage scholarship applications and awards." /></AdminRoute>} />
       <Route path="/admin/activity-logs" element={<AdminRoute><AdminActivity /></AdminRoute>} />
       <Route path="/admin/invoices" element={<AdminRoute><AdminInvoices /></AdminRoute>} />
-      <Route path="/admin/ybex-story" element={<AdminRoute><AdminPlaceholder title="YBEX Story" icon="📖" description="Manage the YBEX brand story and timeline." /></AdminRoute>} />
       <Route path="/admin/portfolio" element={<AdminRoute><AdminPortfolio /></AdminRoute>} />
       <Route path="/admin/bin" element={<AdminRoute><AdminBin /></AdminRoute>} />
       <Route path="/admin/website-settings" element={<AdminRoute><AdminPlaceholder title="Website Settings" icon="⚙️" description="Configure global website settings and preferences." /></AdminRoute>} />

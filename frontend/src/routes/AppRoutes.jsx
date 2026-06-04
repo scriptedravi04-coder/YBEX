@@ -52,7 +52,6 @@ const AppRoutes = () => {
       <Route path="/admin/scholarship" element={<AdminRoute><AdminScholarship /></AdminRoute>} />
       <Route path="/admin/activity-logs" element={<AdminRoute><AdminPlaceholder title="Activity Logs" icon="log" description="View all admin and user activity logs." /></AdminRoute>} />
       <Route path="/admin/invoices" element={<AdminRoute><AdminInvoices /></AdminRoute>} />
-      <Route path="/admin/ybex-story" element={<AdminRoute><AdminPlaceholder title="YBEX Story" icon="story" description="Manage the YBEX brand story and timeline." /></AdminRoute>} />
       <Route path="/admin/portfolio" element={<AdminRoute><AdminPlaceholder title="Portfolio" icon="port" description="Manage portfolio projects and case studies." /></AdminRoute>} />
       <Route path="/admin/bin" element={<AdminRoute><AdminPlaceholder title="Bin" icon="bin" description="Review and restore deleted items." /></AdminRoute>} />
       <Route path="/admin/website-settings" element={<AdminRoute><AdminPlaceholder title="Website Settings" icon="set" description="Configure global website settings and preferences." /></AdminRoute>} />

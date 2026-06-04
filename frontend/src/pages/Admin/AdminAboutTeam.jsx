@@ -33,7 +33,7 @@ function resolveImg(url) {
   if (url.startsWith('/uploads/')) {
     // On localhost: Vite proxies /uploads → backend:5000, so use path directly
     // On IP access (mobile/LAN): point directly to backend port 5000
-    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
       return `http://${window.location.hostname}:5000${url}`;
     }
     return url; // Vite proxy handles it on localhost

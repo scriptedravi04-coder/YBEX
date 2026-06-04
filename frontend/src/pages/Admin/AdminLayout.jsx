@@ -19,7 +19,6 @@ const NAV_TABS = [
   { label: 'Scholarship',      path: '/admin/scholarship',      icon: '🎖️', hoverColor: '#06b6d4' },
   { label: 'Activity Logs',    path: '/admin/activity-logs',    icon: '📊', hoverColor: '#6366f1' },
   { label: 'Invoices',         path: '/admin/invoices',         icon: '🧾', hoverColor: '#3b82f6' },
-  { label: 'YBEX Story',       path: '/admin/ybex-story',       icon: '📖', hoverColor: '#84cc16' },
   { label: 'Portfolio',        path: '/admin/portfolio',        icon: '🗂️', hoverColor: '#3b82f6' },
   { label: 'Bin',              path: '/admin/bin',              icon: '🗑️', hoverColor: '#ef4444' },
 ];

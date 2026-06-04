@@ -13,6 +13,8 @@ const projectSchema = new mongoose.Schema({
   coverImage:      { type: String, default: null },
   projectLink:     { type: String, default: '', trim: true },
   sortOrder:       { type: Number, default: 0 },
+  deletedAt:       { type: Date, default: null },
+  deletedBy:       { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Project', projectSchema);

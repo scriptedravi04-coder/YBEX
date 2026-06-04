@@ -1,9 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import axios from 'axios';
+import axiosInstance from '../../api/axiosInstance';
 import AdminLayout from './AdminLayout';
-
-const API_URL = 'http://localhost:5000/api';
 const ACCENT = '#e4f141';
 const BORDER = 'rgba(255,255,255,0.06)';
 const MUTED  = 'rgba(255,255,255,0.55)';
@@ -36,7 +34,7 @@ export default function AdminSuccessStories() {
   const fetchStories = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${API_URL}/success-stories/admin`);
+      const res = await axiosInstance.get('/success-stories/admin');
       setStories(res.data.data || []);
     } catch (error) {
       console.error('Error fetching stories:', error);
@@ -146,9 +144,9 @@ export default function AdminSuccessStories() {
       };
 
       if (editingStory) {
-        await axios.put(`${API_URL}/success-stories/${editingStory._id}`, submitData);
+        await axiosInstance.put(`/success-stories/${editingStory._id}`, submitData);
       } else {
-        await axios.post(`${API_URL}/success-stories`, submitData);
+        await axiosInstance.post('/success-stories', submitData);
       }
 
       handleCloseModal();
@@ -162,7 +160,7 @@ export default function AdminSuccessStories() {
   const handleDelete = async (id) => {
     if (!confirm('Are you sure you want to delete this story?')) return;
     try {
-      await axios.delete(`${API_URL}/success-stories/${id}`);
+      await axiosInstance.delete(`/success-stories/${id}`);
       fetchStories();
     } catch (error) {
       console.error('Error deleting story:', error);

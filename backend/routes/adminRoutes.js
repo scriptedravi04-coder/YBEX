@@ -71,7 +71,7 @@ router.delete('/team-members/:id', deleteTeamMember);
 // ── Influencers ───────────────────────────────────────────────────
 router.get('/influencers', async (req, res, next) => {
   try {
-    const influencers = await Influencer.find().sort({ createdAt: -1 });
+    const influencers = await Influencer.find({ deletedAt: null }).sort({ createdAt: -1 });
     res.json({ success: true, influencers });
   } catch (e) { next(e); }
 });
@@ -91,13 +91,12 @@ router.post('/influencers', async (req, res, next) => {
 
 router.delete('/influencers/:id', async (req, res, next) => {
   try {
-    const inf = await Influencer.findByIdAndDelete(req.params.id);
+    const inf = await Influencer.findByIdAndUpdate(
+      req.params.id,
+      { deletedAt: new Date(), deletedBy: req.user._id },
+      { new: true }
+    );
     if (!inf) return res.status(404).json({ message: 'Not found' });
-    // Only delete local file if it was a local upload (not an external URL)
-    if (inf.imageUrl && inf.imageUrl.startsWith('/uploads/')) {
-      const fp = path.join(__dirname, '../uploads', path.basename(inf.imageUrl));
-      if (fs.existsSync(fp)) fs.unlinkSync(fp);
-    }
     res.json({ success: true });
   } catch (e) { next(e); }
 });
@@ -105,7 +104,7 @@ router.delete('/influencers/:id', async (req, res, next) => {
 // ── Brands ────────────────────────────────────────────────────────
 router.get('/brands', async (req, res, next) => {
   try {
-    const brands = await Brand.find().sort({ createdAt: -1 });
+    const brands = await Brand.find({ deletedAt: null }).sort({ createdAt: -1 });
     res.json({ success: true, brands });
   } catch (e) { next(e); }
 });
@@ -127,13 +126,12 @@ router.post('/brands', async (req, res, next) => {
 
 router.delete('/brands/:id', async (req, res, next) => {
   try {
-    const brand = await Brand.findByIdAndDelete(req.params.id);
+    const brand = await Brand.findByIdAndUpdate(
+      req.params.id,
+      { deletedAt: new Date(), deletedBy: req.user._id },
+      { new: true }
+    );
     if (!brand) return res.status(404).json({ message: 'Not found' });
-    // Only delete local file if it was a local upload
-    if (brand.logoUrl && brand.logoUrl.startsWith('/uploads/')) {
-      const fp = path.join(__dirname, '../uploads', path.basename(brand.logoUrl));
-      if (fs.existsSync(fp)) fs.unlinkSync(fp);
-    }
     res.json({ success: true });
   } catch (e) { next(e); }
 });
@@ -176,7 +174,7 @@ router.delete('/hiring/:id', async (req, res, next) => {
 // ── Portfolio Projects ────────────────────────────────────────────
 router.get('/projects', async (req, res, next) => {
   try {
-    const projects = await Project.find().sort({ sortOrder: 1, createdAt: -1 });
+    const projects = await Project.find({ deletedAt: null }).sort({ sortOrder: 1, createdAt: -1 });
     res.json({ success: true, projects });
   } catch (e) { next(e); }
 });
@@ -238,12 +236,12 @@ router.patch('/projects/:id', upload.single('coverImage'), async (req, res, next
 
 router.delete('/projects/:id', async (req, res, next) => {
   try {
-    const project = await Project.findByIdAndDelete(req.params.id);
+    const project = await Project.findByIdAndUpdate(
+      req.params.id,
+      { deletedAt: new Date(), deletedBy: req.user._id },
+      { new: true }
+    );
     if (!project) return res.status(404).json({ message: 'Not found' });
-    if (project.coverImage && project.coverImage.startsWith('/uploads/')) {
-      const fp = path.join(__dirname, '../uploads', path.basename(project.coverImage));
-      if (fs.existsSync(fp)) fs.unlinkSync(fp);
-    }
     res.json({ success: true });
   } catch (e) { next(e); }
 });

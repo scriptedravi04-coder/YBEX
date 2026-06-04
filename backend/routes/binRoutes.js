@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const path = require('path');
+const fs = require('fs');
 const User = require('../models/User');
 const Contact = require('../models/Contact');
 const TeamMember = require('../models/TeamMember');
@@ -9,6 +11,8 @@ const SuccessStory = require('../models/SuccessStory');
 const Influencer = require('../models/Influencer');
 const HiringApplication = require('../models/HiringApplication');
 const Invoice = require('../models/Invoice');
+const Project = require('../models/Project');
+const Scholarship = require('../models/Scholarship');
 const { protect, adminOnly } = require('../middleware/auth');
 const { logActivity } = require('../middleware/activityLogger');
 
@@ -125,13 +129,36 @@ router.get('/', async (req, res, next) => {
       );
     }
 
+    // Portfolio Projects
+    if (!type || type === 'PORTFOLIO') {
+      queryPromises.push(
+        Project.find(deletedFilter)
+          .populate('deletedBy', 'name email')
+          .sort({ deletedAt: -1 })
+          .lean()
+          .then(items => items.map(item => ({ ...item, itemType: 'PORTFOLIO', itemName: item.title })))
+      );
+    }
+
+    // Scholarships
+    if (!type || type === 'SCHOLARSHIP') {
+      queryPromises.push(
+        Scholarship.find(deletedFilter)
+          .populate('deletedBy', 'name email')
+          .sort({ deletedAt: -1 })
+          .lean()
+          .then(items => items.map(item => ({ ...item, itemType: 'SCHOLARSHIP', itemName: item.fullName })))
+      );
+    }
+
     const results = await Promise.all(queryPromises);
     const allItems = results.flat().sort((a, b) => new Date(b.deletedAt) - new Date(a.deletedAt));
 
     // Get counts by type
     const counts = {
       USER: 0, ENQUIRY: 0, TEAM_MEMBER: 0, SUGGESTION: 0,
-      BRAND: 0, SUCCESS_STORY: 0, INFLUENCER: 0, HIRING: 0, INVOICE: 0
+      BRAND: 0, SUCCESS_STORY: 0, INFLUENCER: 0, HIRING: 0, INVOICE: 0,
+      PORTFOLIO: 0, SCHOLARSHIP: 0
     };
     allItems.forEach(item => {
       if (counts[item.itemType] !== undefined) {
@@ -162,7 +189,9 @@ router.get('/stats', async (req, res, next) => {
       SuccessStory.countDocuments(deletedFilter),
       Influencer.countDocuments(deletedFilter),
       HiringApplication.countDocuments(deletedFilter),
-      Invoice.countDocuments(deletedFilter)
+      Invoice.countDocuments(deletedFilter),
+      Project.countDocuments(deletedFilter),
+      Scholarship.countDocuments(deletedFilter)
     ]);
 
     res.json({
@@ -177,6 +206,8 @@ router.get('/stats', async (req, res, next) => {
         INFLUENCER: counts[6],
         HIRING: counts[7],
         INVOICE: counts[8],
+        PORTFOLIO: counts[9],
+        SCHOLARSHIP: counts[10],
         total: counts.reduce((a, b) => a + b, 0)
       }
     });
@@ -199,6 +230,8 @@ router.post('/restore/:type/:id', async (req, res, next) => {
       case 'INFLUENCER': Model = Influencer; break;
       case 'HIRING': Model = HiringApplication; break;
       case 'INVOICE': Model = Invoice; break;
+      case 'PORTFOLIO': Model = Project; break;
+      case 'SCHOLARSHIP': Model = Scholarship; break;
       default: return res.status(400).json({ message: 'Invalid item type' });
     }
 
@@ -218,13 +251,27 @@ router.post('/restore/:type/:id', async (req, res, next) => {
       action: 'RESTORE',
       entityType: type,
       entityId: id,
-      entityName: item.name || item.title || item.invoiceNumber || 'Item',
+      entityName: item.name || item.title || item.fullName || item.invoiceNumber || 'Item',
       details: { restoredFromBin: true }
     });
 
     res.json({ success: true, message: 'Item restored successfully', item });
   } catch (e) { next(e); }
 });
+
+// Helper function to delete local files
+const deleteLocalFile = (imageUrl) => {
+  if (imageUrl && imageUrl.startsWith('/uploads/')) {
+    const fp = path.join(__dirname, '../uploads', path.basename(imageUrl));
+    if (fs.existsSync(fp)) {
+      try {
+        fs.unlinkSync(fp);
+      } catch (err) {
+        console.error('Error deleting file:', fp, err);
+      }
+    }
+  }
+};
 
 // Permanently delete single item
 router.delete('/:type/:id', async (req, res, next) => {
@@ -243,6 +290,8 @@ router.delete('/:type/:id', async (req, res, next) => {
       case 'INFLUENCER': Model = Influencer; break;
       case 'HIRING': Model = HiringApplication; break;
       case 'INVOICE': Model = Invoice; break;
+      case 'PORTFOLIO': Model = Project; break;
+      case 'SCHOLARSHIP': Model = Scholarship; break;
       default: return res.status(400).json({ message: 'Invalid item type' });
     }
 
@@ -251,7 +300,18 @@ router.delete('/:type/:id', async (req, res, next) => {
       return res.status(404).json({ message: 'Item not found in bin' });
     }
 
-    entityName = item.name || item.title || item.invoiceNumber || item.subject || 'Item';
+    entityName = item.name || item.title || item.fullName || item.invoiceNumber || item.subject || 'Item';
+
+    // File cleanup before unlinking model entry
+    if (type === 'BRAND') {
+      deleteLocalFile(item.logoUrl);
+    } else if (type === 'INFLUENCER') {
+      deleteLocalFile(item.imageUrl);
+    } else if (type === 'PORTFOLIO') {
+      deleteLocalFile(item.coverImage);
+    } else if (type === 'TEAM_MEMBER') {
+      deleteLocalFile(item.imageUrl);
+    }
 
     await Model.findByIdAndDelete(id);
 
@@ -274,6 +334,19 @@ router.delete('/clear', async (req, res, next) => {
   try {
     const deletedFilter = { deletedAt: { $ne: null } };
 
+    // File cleanup for all deleted items before database purge
+    const [brands, influencers, projects, members] = await Promise.all([
+      Brand.find(deletedFilter),
+      Influencer.find(deletedFilter),
+      Project.find(deletedFilter),
+      TeamMember.find(deletedFilter)
+    ]);
+
+    brands.forEach(item => deleteLocalFile(item.logoUrl));
+    influencers.forEach(item => deleteLocalFile(item.imageUrl));
+    projects.forEach(item => deleteLocalFile(item.coverImage));
+    members.forEach(item => deleteLocalFile(item.imageUrl));
+
     const deletePromises = [
       User.deleteMany(deletedFilter),
       Contact.deleteMany(deletedFilter),
@@ -283,7 +356,9 @@ router.delete('/clear', async (req, res, next) => {
       SuccessStory.deleteMany(deletedFilter),
       Influencer.deleteMany(deletedFilter),
       HiringApplication.deleteMany(deletedFilter),
-      Invoice.deleteMany(deletedFilter)
+      Invoice.deleteMany(deletedFilter),
+      Project.deleteMany(deletedFilter),
+      Scholarship.deleteMany(deletedFilter)
     ];
 
     const results = await Promise.all(deletePromises);

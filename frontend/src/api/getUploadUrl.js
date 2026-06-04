@@ -10,8 +10,15 @@ export function getUploadUrl(path) {
   if (!path) return null;
   // Already a full URL (http/https) or data URI — return as-is
   if (path.startsWith('http') || path.startsWith('data:')) return path;
+  
   // Build backend origin dynamically
   const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+  
+  // On localhost: Vite proxies /uploads → backend:5000 (using 127.0.0.1 to avoid IPv6 issues), so use path directly
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return path;
+  }
+  
   const backendOrigin = `http://${hostname}:5000`;
   return `${backendOrigin}${path}`;
 }

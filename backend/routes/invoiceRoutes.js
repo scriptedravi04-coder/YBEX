@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Invoice = require('../models/Invoice');
+const { protect } = require('../middleware/auth');
 
 // @route   POST /api/invoices
 // @desc    Create or update invoice (upsert by invoiceNumber)
@@ -33,7 +34,7 @@ router.post('/', async (req, res) => {
 // @access  Public (for admin dashboard)
 router.get('/', async (req, res) => {
   try {
-    const invoices = await Invoice.find().sort({ createdAt: -1 });
+    const invoices = await Invoice.find({ deletedAt: null }).sort({ createdAt: -1 });
     res.json({ success: true, data: invoices });
   } catch (error) {
     console.error('Error fetching invoices:', error);
@@ -46,13 +47,13 @@ router.get('/', async (req, res) => {
 // @access  Public (for admin dashboard)
 router.get('/stats', async (req, res) => {
   try {
-    const total = await Invoice.countDocuments();
-    const generated = await Invoice.countDocuments({ status: 'generated' });
-    const sent = await Invoice.countDocuments({ status: 'sent' });
-    const paid = await Invoice.countDocuments({ status: 'paid' });
+    const total = await Invoice.countDocuments({ deletedAt: null });
+    const generated = await Invoice.countDocuments({ status: 'generated', deletedAt: null });
+    const sent = await Invoice.countDocuments({ status: 'sent', deletedAt: null });
+    const paid = await Invoice.countDocuments({ status: 'paid', deletedAt: null });
 
     // Calculate total revenue from paid invoices
-    const paidInvoices = await Invoice.find({ status: 'paid' });
+    const paidInvoices = await Invoice.find({ status: 'paid', deletedAt: null });
     const totalRevenue = paidInvoices.reduce((sum, inv) => sum + inv.grandTotal, 0);
 
     res.json({
@@ -111,9 +112,13 @@ router.put('/:id/status', async (req, res) => {
 // @route   DELETE /api/invoices/:id
 // @desc    Delete an invoice
 // @access  Public
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', protect, async (req, res) => {
   try {
-    const invoice = await Invoice.findByIdAndDelete(req.params.id);
+    const invoice = await Invoice.findByIdAndUpdate(
+      req.params.id,
+      { deletedAt: new Date(), deletedBy: req.user._id },
+      { new: true }
+    );
     if (!invoice) {
       return res.status(404).json({ success: false, error: 'Invoice not found' });
     }

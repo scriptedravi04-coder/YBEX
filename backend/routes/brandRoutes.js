@@ -7,7 +7,7 @@ const Brand = require('../models/Brand');
 // @access  Public
 router.get('/', async (req, res) => {
   try {
-    const brands = await Brand.find().sort({ createdAt: -1 });
+    const brands = await Brand.find({ deletedAt: null }).sort({ createdAt: -1 });
     res.json({ success: true, data: brands });
   } catch (error) {
     console.error('Error fetching brands:', error);

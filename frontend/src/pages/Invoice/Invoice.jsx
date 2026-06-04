@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -91,13 +91,13 @@ function QRWarningModal({ isOpen, onClose, message }) {
 }
 
 const steps = [
-  { id: 1, title: 'The Basics',  subtitle: 'Give it a number. Make it real.',    icon: FileText  },
-  { id: 2, title: 'Who & Where', subtitle: 'Your details vs. Their details.',     icon: User      },
-  { id: 3, title: "What's Sold", subtitle: 'List your items. Be descriptive.',    icon: Receipt   },
-  { id: 4, title: 'Appearance',  subtitle: 'Logo, signature & final touches.',    icon: Sparkles  },
-  { id: 5, title: 'Accounts',    subtitle: 'Where should they send money?',       icon: Landmark  },
-  { id: 6, title: 'Review',      subtitle: 'Preview before you send.',            icon: Eye       },
-  { id: 7, title: 'Done',        subtitle: 'Ready to download & send.',           icon: FileCheck },
+  { id: 1, title: 'The Basics', subtitle: 'Give it a number. Make it real.', icon: FileText },
+  { id: 2, title: 'Who & Where', subtitle: 'Your details vs. Their details.', icon: User },
+  { id: 3, title: "What's Sold", subtitle: 'List your items. Be descriptive.', icon: Receipt },
+  { id: 4, title: 'Appearance', subtitle: 'Logo, signature & final touches.', icon: Sparkles },
+  { id: 5, title: 'Accounts', subtitle: 'Where should they send money?', icon: Landmark },
+  { id: 6, title: 'Review', subtitle: 'Preview before you send.', icon: Eye },
+  { id: 7, title: 'Done', subtitle: 'Ready to download & send.', icon: FileCheck },
 ];
 
 // ─── Step 1 ───────────────────────────────────────────────────────────────────
@@ -120,7 +120,7 @@ function Step1({ invoiceData, setInvoiceData }) {
 
   const forLabel = invoiceData.invoiceFor === 'brand' ? '🏢 Brand'
     : invoiceData.invoiceFor === 'influencer' ? '🌟 Influencer'
-    : 'Select type...';
+      : 'Select type...';
 
   return (
     <div className="step-content">
@@ -430,7 +430,7 @@ function Step3({ invoiceData, setInvoiceData, subtotal, discount, tax, grandTota
         <button className="add-item-btn" onClick={addItem}><Plus size={20} />Add Item</button>
         <div className="items-total">
           <div className="total-row"><span>Subtotal</span><span>₹{subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span></div>
-          
+
           {/* Discount input row */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.3rem 0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -467,7 +467,7 @@ function Step3({ invoiceData, setInvoiceData, subtotal, discount, tax, grandTota
 // ─── Step 4: Appearance ──────────────────────────────────────────────────────
 function Step4({ invoiceData, setInvoiceData }) {
   const fileRef = React.useRef(null);
-  const sigRef  = React.useRef(null);
+  const sigRef = React.useRef(null);
 
   const handleLogoUpload = (e) => {
     const file = e.target.files[0];
@@ -504,7 +504,7 @@ function Step4({ invoiceData, setInvoiceData }) {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.9rem' }}>
           <div className="form-header" style={{ margin: 0 }}><Building size={20} /><h4>LOGO SETUP</h4></div>
           <div style={{ display: 'flex', gap: '0.4rem' }}>
-            {['text','image'].map(t => (
+            {['text', 'image'].map(t => (
               <button key={t} onClick={() => setAp({ logoType: t })}
                 style={{ padding: '0.35rem 0.9rem', borderRadius: '8px', border: `1px solid ${ap.logoType === t ? '#FF3D10' : 'rgba(255,255,255,0.12)'}`, background: ap.logoType === t ? '#FF3D10' : 'rgba(255,255,255,0.04)', color: ap.logoType === t ? '#fff' : 'rgba(255,255,255,0.5)', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 {t === 'text' ? '✏ Text' : '🖼 Image'}
@@ -570,7 +570,7 @@ function Step4({ invoiceData, setInvoiceData }) {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.9rem' }}>
           <div className="form-header" style={{ margin: 0 }}><FileCheck size={20} /><h4>SIGNATURE</h4></div>
           <div style={{ display: 'flex', gap: '0.4rem' }}>
-            {['text','image'].map(t => (
+            {['text', 'image'].map(t => (
               <button key={t} onClick={() => setAp({ signatureType: t })}
                 style={{ padding: '0.35rem 0.9rem', borderRadius: '8px', border: `1px solid ${ap.signatureType === t ? '#FF3D10' : 'rgba(255,255,255,0.12)'}`, background: ap.signatureType === t ? '#FF3D10' : 'rgba(255,255,255,0.04)', color: ap.signatureType === t ? '#fff' : 'rgba(255,255,255,0.5)', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 {t === 'text' ? '✏ Text' : '🖼 Image'}
@@ -673,7 +673,7 @@ function Step5({ invoiceData, setInvoiceData, updateInvoiceData }) {
   const handleQrUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    
+
     // Strict validation: must be an image
     const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
     if (!validTypes.includes(file.type)) {
@@ -693,7 +693,7 @@ function Step5({ invoiceData, setInvoiceData, updateInvoiceData }) {
     reader.onload = (ev) => {
       const dataUrl = ev.target.result;
       const img = new Image();
-      
+
       img.onload = () => {
         // Create canvas for basic validation
         const canvas = document.createElement('canvas');
@@ -710,25 +710,25 @@ function Step5({ invoiceData, setInvoiceData, updateInvoiceData }) {
         let hasLightPixels = false;
         let totalBrightness = 0;
         let pixelCount = 0;
-        
+
         // Sample a few pixels to check if image has content
         for (let i = 0; i < data.length; i += 40) {
-          const r = data[i], g = data[i+1], b = data[i+2];
+          const r = data[i], g = data[i + 1], b = data[i + 2];
           const brightness = (r + g + b) / 3;
           totalBrightness += brightness;
           pixelCount++;
-          
+
           if (brightness < 120) hasDarkPixels = true;
           if (brightness > 140) hasLightPixels = true;
         }
-        
+
         const avgBrightness = totalBrightness / pixelCount;
-        
+
         // ONLY reject if:
         // 1. Image is completely blank (solid color)
         // 2. Image has no contrast at all
         const isBlankImage = !hasDarkPixels || !hasLightPixels || avgBrightness < 10 || avgBrightness > 245;
-        
+
         if (isBlankImage) {
           showQrWarning(
             'This appears to be a blank or invalid image.\n\n' +
@@ -737,20 +737,20 @@ function Step5({ invoiceData, setInvoiceData, updateInvoiceData }) {
           e.target.value = '';
           return;
         }
-        
+
         // ACCEPT ALL OTHER IMAGES - Google Pay, Paytm, PhonePe QR codes will pass
         // Payment apps add branding/colors which is perfectly fine
 
         // SMART UPI ID extraction
         let extractedUpiId = '';
-        
+
         // 1. Try to extract from filename first
         const fileName = file.name.toLowerCase().replace(/\.[^.]+$/, '');
         const upiPatterns = [
           /([a-z0-9._-]+@[a-z0-9_]+)/i,  // Standard UPI format
           /([a-z0-9._-]+@(oksbi|okhdfc|okicici|okaxis|paytm|oksbi))/i, // Specific handles
         ];
-        
+
         for (const pattern of upiPatterns) {
           const match = pattern.exec(fileName);
           if (match) {
@@ -758,7 +758,7 @@ function Step5({ invoiceData, setInvoiceData, updateInvoiceData }) {
             break;
           }
         }
-        
+
         // 2. If not found in filename, try to decode QR image data (basic check for common patterns)
         // Google Pay QR codes often contain merchant info
         // Paytm QR codes have specific patterns
@@ -771,7 +771,7 @@ function Step5({ invoiceData, setInvoiceData, updateInvoiceData }) {
             extractedUpiId = upiMatch[1];
           }
         }
-        
+
         // 3. Common default patterns for major apps
         if (!extractedUpiId) {
           // If filename contains app name, set a placeholder
@@ -785,28 +785,28 @@ function Step5({ invoiceData, setInvoiceData, updateInvoiceData }) {
         }
 
         updateInvoiceData('bankDetails', 'qrImage', dataUrl);
-        
+
         // Auto-fill UPI ID if extracted
         if (extractedUpiId) {
           updateInvoiceData('bankDetails', 'upiId', extractedUpiId);
         }
-        
+
         setInvoiceData(p => ({ ...p, paymentMethod: 'qr' }));
       };
-      
+
       img.onerror = () => {
         showQrWarning('Failed to load the image. Please try uploading a different QR code image.');
         e.target.value = '';
       };
-      
+
       img.src = dataUrl;
     };
-    
+
     reader.onerror = () => {
       showQrWarning('Failed to read the file. Please try again with a different image.');
       e.target.value = '';
     };
-    
+
     reader.readAsDataURL(file);
   };
 
@@ -821,9 +821,9 @@ function Step5({ invoiceData, setInvoiceData, updateInvoiceData }) {
         <div className="form-header"><Receipt size={20} /><h4>PAYMENT METHOD</h4></div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem', marginBottom: '1.25rem' }}>
           {[
-            { key: 'qr',   label: 'QR Code',       icon: '▦',  color: '#FF3D10' },
-            { key: 'bank', label: 'Bank Transfer',  icon: '🏦', color: '#FF3D10' },
-            { key: 'upi',  label: 'UPI',            icon: '📱', color: '#00D26A' },
+            { key: 'qr', label: 'QR Code', icon: '▦', color: '#FF3D10' },
+            { key: 'bank', label: 'Bank Transfer', icon: '🏦', color: '#FF3D10' },
+            { key: 'upi', label: 'UPI', icon: '📱', color: '#00D26A' },
           ].map(opt => (
             <button key={opt.key}
               onClick={() => setInvoiceData(p => ({ ...p, paymentMethod: opt.key }))}
@@ -846,16 +846,16 @@ function Step5({ invoiceData, setInvoiceData, updateInvoiceData }) {
                     <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>QR Code Uploaded ✓</div>
                     <div className="form-field" style={{ marginBottom: '0.5rem' }}>
                       <label>UPI ID <span style={{ fontSize: '0.58rem', color: 'rgba(255,255,255,0.3)', fontWeight: 400 }}>(shown below QR on invoice)</span></label>
-                      <input 
-                        type="text" 
-                        value={invoiceData.bankDetails.upiId || ''} 
+                      <input
+                        type="text"
+                        value={invoiceData.bankDetails.upiId || ''}
                         placeholder={invoiceData.bankDetails.upiId ? '' : "Enter your UPI ID (e.g., name@upi) — auto-filled from QR filename"}
                         style={{
                           background: invoiceData.bankDetails.upiId ? 'rgba(0,200,100,0.08)' : 'rgba(255,255,255,0.05)',
                           border: `1px solid ${invoiceData.bankDetails.upiId ? 'rgba(0,200,100,0.4)' : 'rgba(255,255,255,0.1)'}`,
                           color: invoiceData.bankDetails.upiId ? '#fff' : 'rgba(255,255,255,0.7)',
                         }}
-                        onChange={e => updateInvoiceData('bankDetails', 'upiId', e.target.value)} 
+                        onChange={e => updateInvoiceData('bankDetails', 'upiId', e.target.value)}
                       />
                       {invoiceData.bankDetails.upiId && (
                         <motion.div
@@ -928,12 +928,12 @@ function Step5({ invoiceData, setInvoiceData, updateInvoiceData }) {
           </div>
         )}
       </div>
-      
+
       {/* QR Warning Modal */}
-      <QRWarningModal 
-        isOpen={qrWarning.isOpen} 
-        onClose={closeQrWarning} 
-        message={qrWarning.message} 
+      <QRWarningModal
+        isOpen={qrWarning.isOpen}
+        onClose={closeQrWarning}
+        message={qrWarning.message}
       />
     </div>
   );
@@ -969,57 +969,44 @@ const generateInvoicePDF = async (invoiceData, subtotal, discount, tax, grandTot
   // If we have a ref to the preview DOM node, use html2canvas for pixel-perfect output
   if (previewRef && previewRef.current) {
     const node = previewRef.current;
+    
+    // Save original styling to restore later
+    const originalPosition = node.style.position;
+    const originalLeft = node.style.left;
+    const originalTop = node.style.top;
+    
+    // Temporarily position absolute at top-left so html2canvas captures it without offsets
+    node.style.position = 'absolute';
+    node.style.left = '0';
+    node.style.top = '0';
+
     const canvas = await html2canvas(node, {
       scale: 3,           // high DPI — crisp text
       useCORS: true,
       backgroundColor: '#ffffff',
       logging: false,
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: 794,
+      windowHeight: node.scrollHeight,
+      width: 794,
+      height: node.scrollHeight,
     });
 
-    const imgData  = canvas.toDataURL('image/png');
-    const doc      = new jsPDF('p', 'mm', 'a4');
-    const pageW    = doc.internal.pageSize.getWidth();   // 210
-    const pageH    = doc.internal.pageSize.getHeight();  // 297
-    const margin   = 10;
-    const usableW  = pageW - margin * 2;
-    const imgH     = (canvas.height / canvas.width) * usableW;
+    // Restore original off-screen styles immediately
+    node.style.position = originalPosition;
+    node.style.left = originalLeft;
+    node.style.top = originalTop;
 
-    // Calculate scaling to fit content to page height (fill the page)
-    const maxContentH = pageH - margin * 2; // Available height
-    
-    if (imgH <= maxContentH) {
-      // Content is smaller than page - scale UP to fill page completely
-      const scaleToFill = maxContentH / imgH;
-      const finalScale = Math.max(scaleToFill, 1); // Don't shrink, only expand if needed
-      const finalH = Math.min(imgH * finalScale, maxContentH);
-      const finalW = usableW; // Keep width at max to fill page width
-      
-      // Center the image on the page
-      const yOffset = margin + (maxContentH - finalH) / 2;
-      doc.addImage(imgData, 'PNG', margin, yOffset, finalW, finalH);
-    } else {
-      // Content is larger than page - needs multiple pages
-      const pageImgH = maxContentH;
-      const totalPages = Math.ceil(imgH / pageImgH);
-      
-      for (let p = 0; p < totalPages; p++) {
-        if (p > 0) doc.addPage();
-        const srcY = (p * pageImgH / imgH) * canvas.height;
-        const srcH = Math.min((pageImgH / imgH) * canvas.height, canvas.height - srcY);
-        const sliceCanvas = document.createElement('canvas');
-        sliceCanvas.width = canvas.width;
-        sliceCanvas.height = srcH;
-        const ctx = sliceCanvas.getContext('2d');
-        ctx.drawImage(canvas, 0, srcY, canvas.width, srcH, 0, 0, canvas.width, srcH);
-        
-        // Scale slice to fill page width
-        const sliceImgH = (srcH / canvas.height) * imgH;
-        const scaleY = maxContentH / sliceImgH;
-        const finalSliceH = Math.min(sliceImgH * scaleY, maxContentH);
-        
-        doc.addImage(sliceCanvas.toDataURL('image/png'), 'PNG', margin, margin, usableW, finalSliceH);
-      }
-    }
+    const imgData = canvas.toDataURL('image/png');
+    const margin = 0;
+    const pageW = 210; // Standard A4 width in mm
+    const usableW = pageW - margin * 2;
+    const imgH = (canvas.height / canvas.width) * usableW;
+    const pageH = imgH + margin * 2; // Dynamically size height to match content exactly
+
+    const doc = new jsPDF('p', 'mm', [pageW, pageH]);
+    doc.addImage(imgData, 'PNG', margin, margin, usableW, imgH);
 
     if (action === 'download') {
       doc.save(`${invoiceData.invoiceNumber || 'Invoice'}.pdf`);
@@ -1031,7 +1018,7 @@ const generateInvoicePDF = async (invoiceData, subtotal, discount, tax, grandTot
 
   // Fallback: jsPDF text-based (used only if no previewRef)
   const doc = new jsPDF('p', 'mm', 'a4');
-  const pageWidth  = doc.internal.pageSize.getWidth();
+  const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
   const margin = 20;
   let yPos = 0;
@@ -1055,9 +1042,9 @@ const generateInvoicePDF = async (invoiceData, subtotal, discount, tax, grandTot
 
   yPos = 70;
 
-  const leftColX  = margin;
+  const leftColX = margin;
   const rightColX = pageWidth / 2 + 15;
-  let leftY  = yPos;
+  let leftY = yPos;
   let rightY = yPos;
 
   doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(0, 51, 102);
@@ -1129,7 +1116,7 @@ const generateInvoicePDF = async (invoiceData, subtotal, discount, tax, grandTot
   const lx = totalsX + 5, vx = totalsX + totalsWidth - 5;
   doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(0, 0, 0);
   doc.text('Sub Total', lx, totalsStartY + 3); doc.text('Rs.' + fmtNum(subtotal), vx, totalsStartY + 3, { align: 'right' });
-  
+
   let currentY = totalsStartY + 14;
   if (discount > 0) {
     doc.setTextColor(0, 128, 0); // Green for discount
@@ -1138,11 +1125,11 @@ const generateInvoicePDF = async (invoiceData, subtotal, discount, tax, grandTot
     doc.setTextColor(0, 0, 0);
     currentY += 10;
   }
-  
+
   doc.text(`Tax (${invoiceData.gstPercent ?? 18}%)`, lx, currentY);
   doc.text('Rs.' + fmtNum(tax), vx, currentY, { align: 'right' });
   currentY += 6;
-  
+
   doc.setDrawColor(200, 200, 200); doc.line(lx, currentY, vx, currentY);
   currentY += 10;
   doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(0, 51, 102);
@@ -1173,20 +1160,20 @@ const generateInvoicePDF = async (invoiceData, subtotal, discount, tax, grandTot
 // ─── Share Modal ──────────────────────────────────────────────────────────────
 function ShareModal({ open, onClose, invoiceData, subtotal, discount, tax, grandTotal, previewRef }) {
   const [sharing, setSharing] = React.useState(null);
-  const [copied,  setCopied]  = React.useState(false);
+  const [copied, setCopied] = React.useState(false);
   const [shareError, setShareError] = React.useState(null);
 
   const opts = [
-    { id: 'whatsapp', label: 'WhatsApp',          color: '#25D366', icon: '💬', supportsFiles: true },
-    { id: 'gmail',    label: 'Gmail',              color: '#EA4335', icon: '📧', supportsFiles: true },
-    { id: 'telegram', label: 'Telegram',           color: '#0088CC', icon: '✈️', supportsFiles: true },
-    { id: 'copy',     label: copied ? 'Copied!' : 'Copy Link', color: '#FF3D10', icon: copied ? '✅' : '📋', supportsFiles: false },
+    { id: 'whatsapp', label: 'WhatsApp', color: '#25D366', icon: '💬', supportsFiles: true },
+    { id: 'gmail', label: 'Gmail', color: '#EA4335', icon: '📧', supportsFiles: true },
+    { id: 'telegram', label: 'Telegram', color: '#0088CC', icon: '✈️', supportsFiles: true },
+    { id: 'copy', label: copied ? 'Copied!' : 'Copy Link', color: '#FF3D10', icon: copied ? '✅' : '📋', supportsFiles: false },
   ];
 
   const handleShare = async (platform) => {
     setSharing(platform);
     setShareError(null);
-    
+
     try {
       const blob = await generateInvoicePDF(invoiceData, subtotal, discount, tax, grandTotal, 'share', previewRef);
       const fileName = `${invoiceData.invoiceNumber || 'Invoice'}.pdf`;
@@ -1201,10 +1188,10 @@ function ShareModal({ open, onClose, invoiceData, subtotal, discount, tax, grand
       if (canShareFiles && platform !== 'copy') {
         // Use native share API with file - opens device share sheet with PDF attached
         try {
-          await navigator.share({ 
-            title: `Invoice ${invoiceData.invoiceNumber}`, 
-            text: text, 
-            files: [file] 
+          await navigator.share({
+            title: `Invoice ${invoiceData.invoiceNumber}`,
+            text: text,
+            files: [file]
           });
           onClose();
           return;
@@ -1216,9 +1203,9 @@ function ShareModal({ open, onClose, invoiceData, subtotal, discount, tax, grand
 
       // Download the PDF locally first
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); 
-      a.href = url; 
-      a.download = fileName; 
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -1227,99 +1214,99 @@ function ShareModal({ open, onClose, invoiceData, subtotal, discount, tax, grand
       // Platform-specific sharing after download
       const enc = encodeURIComponent;
       const shareText = `${text}\n\n✅ Invoice PDF downloaded! Please attach the file from your Downloads folder.`;
-      
+
       switch (platform) {
         case 'whatsapp':
           // For WhatsApp Web - open chat with pre-filled message
           // User needs to manually attach the downloaded PDF
           const whatsappUrl = `https://wa.me/?text=${enc(shareText)}`;
           window.open(whatsappUrl, '_blank');
-          setShareError({ 
-            platform: 'WhatsApp', 
-            message: 'PDF downloaded! Please attach the file manually in WhatsApp.' 
+          setShareError({
+            platform: 'WhatsApp',
+            message: 'PDF downloaded! Please attach the file manually in WhatsApp.'
           });
           break;
-          
+
         case 'gmail':
           // Gmail compose with subject and body
           const gmailUrl = `mailto:?subject=${enc('Invoice ' + (invoiceData.invoiceNumber || ''))}&body=${enc(shareText)}`;
           window.open(gmailUrl, '_blank');
-          setShareError({ 
-            platform: 'Gmail', 
-            message: 'PDF downloaded! Please attach the file manually in Gmail.' 
+          setShareError({
+            platform: 'Gmail',
+            message: 'PDF downloaded! Please attach the file manually in Gmail.'
           });
           break;
-          
+
         case 'telegram':
           // Telegram share
           const telegramUrl = `https://t.me/share/url?url=${enc(window.location.href)}&text=${enc(shareText)}`;
           window.open(telegramUrl, '_blank');
-          setShareError({ 
-            platform: 'Telegram', 
-            message: 'PDF downloaded! Please attach the file manually in Telegram.' 
+          setShareError({
+            platform: 'Telegram',
+            message: 'PDF downloaded! Please attach the file manually in Telegram.'
           });
           break;
-          
+
         case 'copy':
           // Copy shareable text
           const fullText = `${text}\n\nInvoice PDF: ${window.location.href}`;
           await navigator.clipboard.writeText(fullText);
-          setCopied(true); 
+          setCopied(true);
           setTimeout(() => setCopied(false), 2000);
-          setShareError({ 
-            platform: 'Clipboard', 
-            message: 'Invoice link copied! PDF is in your Downloads folder.' 
+          setShareError({
+            platform: 'Clipboard',
+            message: 'Invoice link copied! PDF is in your Downloads folder.'
           });
           break;
-          
+
         default:
           break;
       }
-    } catch (e) { 
+    } catch (e) {
       console.error('Share error:', e);
-      setShareError({ 
-        platform: 'Error', 
-        message: 'Something went wrong. Please try downloading the PDF directly.' 
+      setShareError({
+        platform: 'Error',
+        message: 'Something went wrong. Please try downloading the PDF directly.'
       });
     }
-    finally { 
-      setSharing(null); 
+    finally {
+      setSharing(null);
     }
   };
 
   if (!open) return null;
   return (
     <div onClick={e => e.target === e.currentTarget && onClose()}
-      style={{ position:'fixed', inset:0, zIndex:99999, background:'rgba(0,0,0,0.88)', backdropFilter:'blur(18px)', display:'flex', alignItems:'center', justifyContent:'center', padding:'1rem' }}>
-      <div style={{ position:'absolute', top:'10%', left:'50%', transform:'translateX(-50%)', width:'500px', height:'250px', background:'radial-gradient(ellipse,rgba(255,61,16,0.15) 0%,transparent 70%)', pointerEvents:'none', borderRadius:'50%' }} />
-      <div style={{ position:'relative', width:'100%', maxWidth:'420px', background:'linear-gradient(160deg,#0f0f0f 0%,#0a0a0a 100%)', border:'1px solid rgba(255,61,16,0.25)', borderRadius:'22px', overflow:'hidden', boxShadow:'0 48px 96px rgba(0,0,0,0.9)' }}>
-        <div style={{ height:'2px', background:'linear-gradient(90deg,transparent,#FF3D10,transparent)' }} />
-        <div style={{ padding:'1.5rem 1.75rem 1.25rem', borderBottom:'1px solid rgba(255,255,255,0.07)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+      style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(18px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+      <div style={{ position: 'absolute', top: '10%', left: '50%', transform: 'translateX(-50%)', width: '500px', height: '250px', background: 'radial-gradient(ellipse,rgba(255,61,16,0.15) 0%,transparent 70%)', pointerEvents: 'none', borderRadius: '50%' }} />
+      <div style={{ position: 'relative', width: '100%', maxWidth: '420px', background: 'linear-gradient(160deg,#0f0f0f 0%,#0a0a0a 100%)', border: '1px solid rgba(255,61,16,0.25)', borderRadius: '22px', overflow: 'hidden', boxShadow: '0 48px 96px rgba(0,0,0,0.9)' }}>
+        <div style={{ height: '2px', background: 'linear-gradient(90deg,transparent,#FF3D10,transparent)' }} />
+        <div style={{ padding: '1.5rem 1.75rem 1.25rem', borderBottom: '1px solid rgba(255,255,255,0.07)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <div style={{ fontSize:'1.05rem', fontWeight:900, color:'#fff', letterSpacing:'-0.02em' }}>Share Invoice</div>
-            <div style={{ fontSize:'0.7rem', color:'rgba(255,255,255,0.35)', marginTop:'2px' }}>PDF downloads + share link opens</div>
+            <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.02em' }}>Share Invoice</div>
+            <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.35)', marginTop: '2px' }}>PDF downloads + share link opens</div>
           </div>
-          <button onClick={onClose} style={{ width:'30px', height:'30px', borderRadius:'8px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)', color:'rgba(255,255,255,0.6)', cursor:'pointer', fontSize:'1rem', display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
+          <button onClick={onClose} style={{ width: '30px', height: '30px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
         </div>
-        <div style={{ padding:'1.5rem 1.75rem', display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'0.75rem' }}>
+        <div style={{ padding: '1.5rem 1.75rem', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
           {opts.map(opt => (
             <button key={opt.id} onClick={() => handleShare(opt.id)} disabled={!!sharing}
-              style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'8px', padding:'1rem 0.5rem', background: sharing===opt.id ? `${opt.color}22` : 'rgba(255,255,255,0.04)', border:`1px solid ${sharing===opt.id ? opt.color+'55' : 'rgba(255,255,255,0.08)'}`, borderRadius:'14px', cursor:sharing?'not-allowed':'pointer', transition:'all 0.2s', opacity:sharing&&sharing!==opt.id?0.5:1 }}
-              onMouseEnter={e => { if(!sharing){e.currentTarget.style.background=`${opt.color}18`;e.currentTarget.style.borderColor=`${opt.color}55`;}}}
-              onMouseLeave={e => { if(!sharing){e.currentTarget.style.background='rgba(255,255,255,0.04)';e.currentTarget.style.borderColor='rgba(255,255,255,0.08)';}}}
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '1rem 0.5rem', background: sharing === opt.id ? `${opt.color}22` : 'rgba(255,255,255,0.04)', border: `1px solid ${sharing === opt.id ? opt.color + '55' : 'rgba(255,255,255,0.08)'}`, borderRadius: '14px', cursor: sharing ? 'not-allowed' : 'pointer', transition: 'all 0.2s', opacity: sharing && sharing !== opt.id ? 0.5 : 1 }}
+              onMouseEnter={e => { if (!sharing) { e.currentTarget.style.background = `${opt.color}18`; e.currentTarget.style.borderColor = `${opt.color}55`; } }}
+              onMouseLeave={e => { if (!sharing) { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; } }}
             >
-              <span style={{ fontSize:'1.6rem' }}>{sharing===opt.id ? '⏳' : opt.icon}</span>
-              <span style={{ fontSize:'0.65rem', fontWeight:700, color:sharing===opt.id?opt.color:'rgba(255,255,255,0.65)', letterSpacing:'0.04em', textTransform:'uppercase' }}>{opt.label}</span>
+              <span style={{ fontSize: '1.6rem' }}>{sharing === opt.id ? '⏳' : opt.icon}</span>
+              <span style={{ fontSize: '0.65rem', fontWeight: 700, color: sharing === opt.id ? opt.color : 'rgba(255,255,255,0.65)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>{opt.label}</span>
             </button>
           ))}
         </div>
         {/* Status message display */}
         {shareError && (
           <div style={{ padding: '0 1.75rem 1rem' }}>
-            <div style={{ 
-              padding: '0.75rem 1rem', 
-              background: shareError.platform === 'Error' ? 'rgba(255,60,60,0.1)' : 'rgba(0,200,100,0.1)', 
-              border: `1px solid ${shareError.platform === 'Error' ? 'rgba(255,60,60,0.3)' : 'rgba(0,200,100,0.3)'}`, 
+            <div style={{
+              padding: '0.75rem 1rem',
+              background: shareError.platform === 'Error' ? 'rgba(255,60,60,0.1)' : 'rgba(0,200,100,0.1)',
+              border: `1px solid ${shareError.platform === 'Error' ? 'rgba(255,60,60,0.3)' : 'rgba(0,200,100,0.3)'}`,
               borderRadius: '10px',
               display: 'flex',
               alignItems: 'center',
@@ -1328,8 +1315,8 @@ function ShareModal({ open, onClose, invoiceData, subtotal, discount, tax, grand
               <span style={{ fontSize: '1.1rem' }}>
                 {shareError.platform === 'Error' ? '⚠️' : '✅'}
               </span>
-              <span style={{ 
-                fontSize: '0.8rem', 
+              <span style={{
+                fontSize: '0.8rem',
                 color: shareError.platform === 'Error' ? '#ff6b6b' : '#4ade80',
                 fontWeight: 500
               }}>
@@ -1338,11 +1325,11 @@ function ShareModal({ open, onClose, invoiceData, subtotal, discount, tax, grand
             </div>
           </div>
         )}
-        
+
         {typeof navigator !== 'undefined' && navigator.share && (
-          <div style={{ padding:'0 1.75rem 1.5rem' }}>
+          <div style={{ padding: '0 1.75rem 1.5rem' }}>
             <button onClick={() => handleShare('native')} disabled={!!sharing}
-              style={{ width:'100%', padding:'0.8rem', background:'rgba(255,61,16,0.12)', border:'1px solid rgba(255,61,16,0.35)', borderRadius:'11px', color:'#FF3D10', fontSize:'0.85rem', fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:'8px' }}>
+              style={{ width: '100%', padding: '0.8rem', background: 'rgba(255,61,16,0.12)', border: '1px solid rgba(255,61,16,0.35)', borderRadius: '11px', color: '#FF3D10', fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
               📱 Share via Device (with PDF)
             </button>
           </div>
@@ -1355,39 +1342,39 @@ function ShareModal({ open, onClose, invoiceData, subtotal, discount, tax, grand
 // ─── Step 7: Done ────────────────────────────────────────────────────────────
 function Step7({ invoiceData, subtotal, discount, tax, grandTotal, previewRef }) {
   const [shareOpen, setShareOpen] = React.useState(false);
-  const [saved,     setSaved]     = React.useState(false);
-  const [dlAnim,    setDlAnim]    = React.useState(false);
+  const [saved, setSaved] = React.useState(false);
+  const [dlAnim, setDlAnim] = React.useState(false);
   const [shareAnim, setShareAnim] = React.useState(false);
 
   const saveToBackend = async () => {
     if (saved) return;
     const payload = {
-      invoiceNumber:  invoiceData.invoiceNumber,
-      date:           invoiceData.date,
-      dueDate:        invoiceData.dueDate        || null,
-      referenceNumber:invoiceData.referenceNumber|| null,
-      invoiceType:    invoiceData.invoiceType,
-      currency:       invoiceData.currency,
-      placeOfSupply:  invoiceData.placeOfSupply  || null,
-      invoiceFor:     invoiceData.invoiceFor     || '',
-      clientPhone:    invoiceData.clientPhone    || '',
-      clientUpiId:    invoiceData.bankDetails?.upiId || '',
-      billedBy:       invoiceData.billedBy,
-      billedTo:       invoiceData.billedTo,
+      invoiceNumber: invoiceData.invoiceNumber,
+      date: invoiceData.date,
+      dueDate: invoiceData.dueDate || null,
+      referenceNumber: invoiceData.referenceNumber || null,
+      invoiceType: invoiceData.invoiceType,
+      currency: invoiceData.currency,
+      placeOfSupply: invoiceData.placeOfSupply || null,
+      invoiceFor: invoiceData.invoiceFor || '',
+      clientPhone: invoiceData.clientPhone || '',
+      clientUpiId: invoiceData.bankDetails?.upiId || '',
+      billedBy: invoiceData.billedBy,
+      billedTo: invoiceData.billedTo,
       items: invoiceData.items.map(item => ({
-        id:          typeof item.id === 'number' ? item.id : 1,
+        id: typeof item.id === 'number' ? item.id : 1,
         description: item.description || 'Service Item',
-        quantity:    Number(item.quantity) || 1,
-        rate:        Number(item.rate)     || 0,
-        amount:      Number(item.quantity) * Number(item.rate),
+        quantity: Number(item.quantity) || 1,
+        rate: Number(item.rate) || 0,
+        amount: Number(item.quantity) * Number(item.rate),
       })),
       bankDetails: invoiceData.bankDetails,
-      subtotal:    Number(subtotal),
+      subtotal: Number(subtotal),
       discountPercent: Number(invoiceData.discountPercent || 0),
-      discount:    Number(discount),
-      tax:         Number(tax),
-      grandTotal:  Number(grandTotal),
-      status:      'generated',
+      discount: Number(discount),
+      tax: Number(tax),
+      grandTotal: Number(grandTotal),
+      status: 'generated',
     };
 
     try {
@@ -1430,7 +1417,7 @@ function Step7({ invoiceData, subtotal, discount, tax, grandTotal, previewRef })
     angle: (i / 20) * 360 + (Math.random() * 20 - 10), // Add some randomness
     dist: 80 + Math.random() * 50,
     size: 3 + Math.random() * 6,
-    color: ['#FF3D10','#ff6b35','#ffb347','#fff','#ff8c42','#ff4757','#ffa502'][i % 7],
+    color: ['#FF3D10', '#ff6b35', '#ffb347', '#fff', '#ff8c42', '#ff4757', '#ffa502'][i % 7],
     delay: i * 0.02,
   }));
 
@@ -1584,7 +1571,7 @@ function InvoicePreview({ invoiceData, subtotal, tax, grandTotal, isPDF = false 
     ? new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
     : null;
 
-  const dateStr    = fmtDate(invoiceData.date) || fmtDate(new Date().toISOString().split('T')[0]);
+  const dateStr = fmtDate(invoiceData.date) || fmtDate(new Date().toISOString().split('T')[0]);
   const dueDateStr = fmtDate(invoiceData.dueDate);
 
   const ap = invoiceData.appearance || {};
@@ -1597,18 +1584,27 @@ function InvoicePreview({ invoiceData, subtotal, tax, grandTotal, isPDF = false 
     ? { sectionGap: '24px', rowPad: '10px 8px', xs: '10px', sm: '11px', base: '13px', md: '15px', lg: '18px', xl: '26px' }
     : { sectionGap: '20px', rowPad: '8px 6px', xs: '7px', sm: '8px', base: '10px', md: '11px', lg: '14px', xl: '22px' };
 
-  const fontFamily = isPDF
-    ? "Arial, Helvetica, sans-serif"
-    : "'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+  const fontFamily = "'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
 
-  const letterSpacing = isPDF ? '0.01em' : '-0.01em';
-  const mainLineHeight = isPDF ? 1.6 : 1.5;
+  const letterSpacing = '-0.01em';
+  const mainLineHeight = 1.5;
 
   return (
-    <div style={{ fontFamily, color: '#000', fontSize: S.base, lineHeight: mainLineHeight, letterSpacing, background: '#fff', display: 'flex', flexDirection: 'column', minHeight: '100%', padding: isPDF ? '24px' : '12px' }}>
+    <div style={{ fontFamily, color: '#000', fontSize: S.base, lineHeight: mainLineHeight, letterSpacing, background: '#fff', display: 'flex', flexDirection: 'column', minHeight: '100%', padding: isPDF ? '40px 32px' : '20px 16px' }}>
 
       {/* ── HEADER ── */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: S.sectionGap, paddingBottom: '14px', borderBottom: isPDF ? '1px solid #e0e0e0' : '2.5px solid #000' }}>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'flex-start', 
+        marginBottom: S.sectionGap, 
+        paddingBottom: '14px', 
+        borderBottom: '2.5px solid #000',
+        marginLeft: isPDF ? '-32px' : '-16px',
+        marginRight: isPDF ? '-32px' : '-16px',
+        paddingLeft: isPDF ? '32px' : '16px',
+        paddingRight: isPDF ? '32px' : '16px'
+      }}>
         <div>
           {ap.logoType === 'image' && ap.logoImage ? (
             <div style={{ overflow: 'hidden', marginBottom: '4px' }}>
@@ -1630,7 +1626,7 @@ function InvoicePreview({ invoiceData, subtotal, tax, grandTotal, isPDF = false 
       </div>
 
       {/* ── SENDER / CLIENT ── */}
-      <div style={{ display: 'flex', gap: '16px', marginBottom: S.sectionGap, paddingBottom: '16px', borderBottom: isPDF ? '1px solid #f0f0f0' : '1px solid #e8e8e8' }}>
+      <div style={{ display: 'flex', gap: '16px', marginBottom: S.sectionGap, paddingBottom: '16px', borderBottom: '1px solid #e8e8e8' }}>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: S.xs, fontWeight: 800, color: '#999', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '6px' }}>Sender Details</div>
           <div style={{ fontWeight: 700, fontSize: S.md, color: '#000', marginBottom: '3px' }}>{invoiceData.billedBy.name || '—'}</div>
@@ -1648,7 +1644,7 @@ function InvoicePreview({ invoiceData, subtotal, tax, grandTotal, isPDF = false 
       </div>
 
       {/* ── DATES ── */}
-      <div style={{ display: 'flex', gap: '32px', marginBottom: S.sectionGap, paddingBottom: '14px', borderBottom: isPDF ? '1px solid #f0f0f0' : '1px solid #e8e8e8' }}>
+      <div style={{ display: 'flex', gap: '32px', marginBottom: S.sectionGap, paddingBottom: '14px', borderBottom: '1px solid #e8e8e8' }}>
         <div>
           <div style={{ fontSize: S.xs, fontWeight: 800, color: '#999', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>Issue Date</div>
           <div style={{ fontSize: S.md, fontWeight: 700, color: '#000' }}>{dateStr}</div>
@@ -1664,16 +1660,16 @@ function InvoicePreview({ invoiceData, subtotal, tax, grandTotal, isPDF = false 
       {/* ── ITEMS TABLE ── */}
       <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: S.sectionGap, fontSize: S.base }}>
         <thead>
-          <tr style={{ borderBottom: isPDF ? '1px solid #e0e0e0' : '2px solid #000', borderTop: isPDF ? 'none' : '1px solid #000' }}>
+          <tr style={{ borderBottom: '2px solid #000', borderTop: '1px solid #000' }}>
             <th style={{ padding: S.rowPad, textAlign: 'left', fontWeight: 800, fontSize: S.sm, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Description</th>
             <th style={{ padding: S.rowPad, textAlign: 'center', fontWeight: 800, fontSize: S.sm, textTransform: 'uppercase', letterSpacing: '0.08em', width: '36px' }}>QTY</th>
-            <th style={{ padding: S.rowPad, textAlign: 'right', fontWeight: 800, fontSize: S.sm, textTransform: 'uppercase', letterSpacing: '0.08em', width: '70px' }}>Rate</th>
-            <th style={{ padding: S.rowPad, textAlign: 'right', fontWeight: 800, fontSize: S.sm, textTransform: 'uppercase', letterSpacing: '0.08em', width: '70px' }}>Amount</th>
+            <th style={{ padding: S.rowPad, textAlign: 'right', fontWeight: 800, fontSize: S.sm, textTransform: 'uppercase', letterSpacing: '0.08em', width: isPDF ? '95px' : '70px' }}>Rate</th>
+            <th style={{ padding: S.rowPad, textAlign: 'right', fontWeight: 800, fontSize: S.sm, textTransform: 'uppercase', letterSpacing: '0.08em', width: isPDF ? '115px' : '70px' }}>Amount</th>
           </tr>
         </thead>
         <tbody>
           {invoiceData.items.map((item) => (
-            <tr key={item.id} style={{ borderBottom: isPDF ? '1px solid #f5f5f5' : '1px solid #f0f0f0' }}>
+            <tr key={item.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
               <td style={{ padding: S.rowPad, color: '#222', fontWeight: 600 }}>{item.description || <span style={{ color: '#ccc' }}>—</span>}</td>
               <td style={{ padding: S.rowPad, textAlign: 'center', color: '#555' }}>{item.quantity}</td>
               <td style={{ padding: S.rowPad, textAlign: 'right', color: '#555' }}>INR {fmtMoney(item.rate)}</td>
@@ -1688,7 +1684,7 @@ function InvoicePreview({ invoiceData, subtotal, tax, grandTotal, isPDF = false 
         <div style={{ flex: 1 }}>
           {payMethod === 'bank' && invoiceData.bankDetails.accountNumber && (
             <div style={{ fontSize: S.sm, lineHeight: 1.8 }}>
-              <div style={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '6px', fontSize: S.xs, color: '#666', borderBottom: isPDF ? '1px solid #f0f0f0' : '1px solid #eee', paddingBottom: '4px' }}>Bank Transfer Details</div>
+              <div style={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '6px', fontSize: S.xs, color: '#666', borderBottom: '1px solid #eee', paddingBottom: '4px' }}>Bank Transfer Details</div>
               {invoiceData.bankDetails.bankName && <div><span style={{ color: '#888', fontSize: S.xs }}>Bank: </span>{invoiceData.bankDetails.bankName}</div>}
               {invoiceData.bankDetails.accountName && <div><span style={{ color: '#888', fontSize: S.xs }}>Account Name: </span>{invoiceData.bankDetails.accountName}</div>}
               {invoiceData.bankDetails.accountNumber && <div><span style={{ color: '#888', fontSize: S.xs }}>Account No: </span><strong>{invoiceData.bankDetails.accountNumber}</strong></div>}
@@ -1697,40 +1693,40 @@ function InvoicePreview({ invoiceData, subtotal, tax, grandTotal, isPDF = false 
           )}
           {payMethod === 'upi' && invoiceData.bankDetails.upiId && (
             <div style={{ fontSize: S.sm }}>
-              <div style={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '5px', fontSize: S.xs, color: '#666', borderBottom: isPDF ? '1px solid #f0f0f0' : '1px solid #eee', paddingBottom: '4px' }}>UPI Payment</div>
+              <div style={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '5px', fontSize: S.xs, color: '#666', borderBottom: '1px solid #eee', paddingBottom: '4px' }}>UPI Payment</div>
               <div style={{ fontWeight: 700, fontSize: S.md }}>{invoiceData.bankDetails.upiId}</div>
             </div>
           )}
           {payMethod === 'qr' && invoiceData.bankDetails.qrImage && (
             <div style={{ fontSize: S.sm }}>
-              <div style={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px', fontSize: S.xs, color: '#666', borderBottom: isPDF ? '1px solid #f0f0f0' : '1px solid #eee', paddingBottom: '4px' }}>Scan to Pay</div>
+              <div style={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px', fontSize: S.xs, color: '#666', borderBottom: '1px solid #eee', paddingBottom: '4px' }}>Scan to Pay</div>
               <img src={invoiceData.bankDetails.qrImage} alt="QR Code" style={{ width: '80px', height: '80px', objectFit: 'contain', display: 'block', marginBottom: '5px' }} />
               {invoiceData.bankDetails.upiId && <div style={{ fontWeight: 700, fontSize: S.sm, color: '#333' }}>{invoiceData.bankDetails.upiId}</div>}
             </div>
           )}
         </div>
-        <div style={{ width: isPDF ? '200px' : '170px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: S.sm, color: '#666', borderBottom: isPDF ? 'none' : '1px solid #eee' }}>
+        <div style={{ width: isPDF ? '220px' : '170px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: S.sm, color: '#666', borderBottom: '1px solid #eee' }}>
             <span>Subtotal</span><span>INR {fmtMoney(subtotal)}</span>
           </div>
           {invoiceData.discountPercent > 0 && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: S.sm, color: isPDF ? '#2e7d32' : '#00d26a', fontWeight: 600, borderBottom: isPDF ? 'none' : '1px solid #eee' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: S.sm, color: '#00d26a', fontWeight: 600, borderBottom: '1px solid #eee' }}>
               <span>Discount ({invoiceData.discountPercent}%)</span><span>-INR {fmtMoney(discount)}</span>
             </div>
           )}
           {gstPct > 0 && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: S.sm, color: '#666', borderBottom: isPDF ? 'none' : '1px solid #eee' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: S.sm, color: '#666', borderBottom: '1px solid #eee' }}>
               <span>GST ({gstPct}%)</span><span>INR {fmtMoney(tax)}</span>
             </div>
           )}
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', fontSize: S.md, fontWeight: 900, color: '#000', borderTop: isPDF ? '1.5px solid #333' : '2.5px solid #000', marginTop: '2px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', fontSize: S.md, fontWeight: 900, color: '#000', borderTop: '2.5px solid #000', marginTop: '2px' }}>
             <span>TOTAL</span><span>INR {fmtMoney(grandTotal)}</span>
           </div>
         </div>
       </div>
 
       {/* ── FOOTER: notes + signature ── */}
-      <div style={{ borderTop: isPDF ? '1px solid #eaeaea' : '1px solid #ddd', paddingTop: '16px', display: 'flex', gap: '16px', alignItems: 'flex-end', paddingBottom: '8px' }}>
+      <div style={{ borderTop: '1px solid #ddd', paddingTop: '16px', display: 'flex', gap: '16px', alignItems: 'flex-end', paddingBottom: '8px' }}>
         <div style={{ flex: 1 }}>
           {ap.notes && (
             <div style={{ marginBottom: '10px' }}>
@@ -1757,7 +1753,7 @@ function InvoicePreview({ invoiceData, subtotal, tax, grandTotal, isPDF = false 
           ) : (
             <div style={{ height: '38px', marginBottom: '6px', borderBottom: '1px solid #ccc' }} />
           )}
-          <div style={{ borderTop: isPDF ? '1px solid #e0e0e0' : '1.5px solid #000', paddingTop: '5px' }}>
+          <div style={{ borderTop: '1.5px solid #000', paddingTop: '5px' }}>
             <div style={{ fontSize: S.xs, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#555' }}>Authorised Signatory</div>
             <div style={{ fontSize: '6px', color: '#bbb', marginTop: '2px' }}>Computer generated — no physical signature required</div>
           </div>
@@ -1776,22 +1772,22 @@ const generateInvoiceNumber = () => {
 };
 
 const makeDefaultData = () => ({
-  invoiceNumber:   generateInvoiceNumber(),
+  invoiceNumber: generateInvoiceNumber(),
   referenceNumber: '',
-  date:            new Date().toISOString().split('T')[0],
-  dueDate:         (() => { const d = new Date(); d.setDate(d.getDate() + 10); return d.toISOString().split('T')[0]; })(),
-  invoiceType:     'Standard',
-  currency:        'INR',
-  placeOfSupply:   '',
-  gstPercent:      18,
+  date: new Date().toISOString().split('T')[0],
+  dueDate: (() => { const d = new Date(); d.setDate(d.getDate() + 10); return d.toISOString().split('T')[0]; })(),
+  invoiceType: 'Standard',
+  currency: 'INR',
+  placeOfSupply: '',
+  gstPercent: 18,
   discountPercent: 0,
-  paymentMethod:   'skip',
-  invoiceFor:      '',
-  clientPhone:     '',
-  billedBy: { name:'', address:'', pan:'', gstin:'', email:'', phone:'' },
-  billedTo: { name:'', address:'', pan:'', gstin:'', email:'', phone:'' },
-  items: [{ id: Date.now(), description:'', quantity:1, rate:0, amount:0 }],
-  bankDetails: { accountName:'', accountNumber:'', bankName:'', ifsc:'', branch:'', upiId:'', qrImage:'' },
+  paymentMethod: 'skip',
+  invoiceFor: '',
+  clientPhone: '',
+  billedBy: { name: '', address: '', pan: '', gstin: '', email: '', phone: '' },
+  billedTo: { name: '', address: '', pan: '', gstin: '', email: '', phone: '' },
+  items: [{ id: Date.now(), description: '', quantity: 1, rate: 0, amount: 0 }],
+  bankDetails: { accountName: '', accountNumber: '', bankName: '', ifsc: '', branch: '', upiId: '', qrImage: '' },
   appearance: {
     logoType: 'text', logoText: 'YBEX', logoImage: '',
     logoZoom: 100, logoPosX: 50,
@@ -1802,11 +1798,36 @@ const makeDefaultData = () => ({
   },
 });
 
+// Helper to retrieve saved invoice data
+const getInitialData = () => {
+  const saved = localStorage.getItem('ybex_invoice_data');
+  if (saved) {
+    try {
+      return JSON.parse(saved);
+    } catch (e) {
+      console.error('Error parsing ybex_invoice_data from localStorage:', e);
+    }
+  }
+  return makeDefaultData();
+};
+
 // ─── Main Invoice Component ───────────────────────────────────────────────────
 export default function Invoice() {
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(() => {
+    const savedStep = localStorage.getItem('ybex_invoice_step');
+    return savedStep ? parseInt(savedStep, 10) : 1;
+  });
   const previewRef = useRef(null);
-  const [invoiceData, setInvoiceData] = useState(makeDefaultData);
+  const [invoiceData, setInvoiceData] = useState(getInitialData);
+
+  // Sync state to localStorage
+  useEffect(() => {
+    localStorage.setItem('ybex_invoice_data', JSON.stringify(invoiceData));
+  }, [invoiceData]);
+
+  useEffect(() => {
+    localStorage.setItem('ybex_invoice_step', String(currentStep));
+  }, [currentStep]);
 
   const updateInvoiceData = useCallback((section, field, value) => {
     setInvoiceData(prev => ({
@@ -1817,16 +1838,19 @@ export default function Invoice() {
 
   const handleReset = () => {
     if (window.confirm('Reset invoice? All data will be cleared and a new invoice number will be generated.')) {
-      setInvoiceData(makeDefaultData());
+      const fresh = makeDefaultData();
+      localStorage.setItem('ybex_invoice_data', JSON.stringify(fresh));
+      localStorage.setItem('ybex_invoice_step', '1');
+      setInvoiceData(fresh);
       setCurrentStep(1);
     }
   };
 
-  const subtotal      = useMemo(() => invoiceData.items.reduce((s, i) => s + Number(i.quantity) * Number(i.rate), 0), [invoiceData.items]);
-  const discount      = useMemo(() => subtotal * ((invoiceData.discountPercent ?? 0) / 100), [subtotal, invoiceData.discountPercent]);
+  const subtotal = useMemo(() => invoiceData.items.reduce((s, i) => s + Number(i.quantity) * Number(i.rate), 0), [invoiceData.items]);
+  const discount = useMemo(() => subtotal * ((invoiceData.discountPercent ?? 0) / 100), [subtotal, invoiceData.discountPercent]);
   const taxableAmount = useMemo(() => subtotal - discount, [subtotal, discount]);
-  const tax           = useMemo(() => taxableAmount * ((invoiceData.gstPercent ?? 18) / 100), [taxableAmount, invoiceData.gstPercent]);
-  const grandTotal    = useMemo(() => taxableAmount + tax,  [taxableAmount, tax]);
+  const tax = useMemo(() => taxableAmount * ((invoiceData.gstPercent ?? 18) / 100), [taxableAmount, invoiceData.gstPercent]);
+  const grandTotal = useMemo(() => taxableAmount + tax, [taxableAmount, tax]);
 
   const goNext = () => setCurrentStep(s => Math.min(s + 1, 7));
   const goPrev = () => setCurrentStep(s => Math.max(s - 1, 1));
@@ -2247,7 +2271,7 @@ export default function Invoice() {
         .inv-preview-paper {
           background: #fff;
           border-radius: 8px;
-          padding: 28px 30px;
+          padding: 28px 0px;
           box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 4px 16px rgba(0,0,0,0.4);
           min-height: 700px;
           font-family: Arial, sans-serif;
@@ -2575,7 +2599,7 @@ export default function Invoice() {
                 {steps.map((step, idx) => {
                   const Icon = step.icon;
                   const isActive = currentStep === step.id;
-                  const isDone   = currentStep > step.id;
+                  const isDone = currentStep > step.id;
                   return (
                     <React.Fragment key={step.id}>
                       {idx > 0 && (
@@ -2652,7 +2676,7 @@ export default function Invoice() {
             background: '#fff',
             zIndex: -1,
             pointerEvents: 'none',
-            padding: '56px 60px',
+            padding: '40px 0px',
             boxSizing: 'border-box',
           }}
           ref={previewRef}

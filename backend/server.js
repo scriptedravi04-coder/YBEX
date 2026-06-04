@@ -48,7 +48,7 @@ app.use('/api/hiring', hiringRoutes);
 const Brand = require('./models/Brand');
 app.get('/api/brands', async (req, res) => {
   try {
-    const brands = await Brand.find().sort({ createdAt: -1 });
+    const brands = await Brand.find({ deletedAt: null }).sort({ createdAt: -1 });
     res.json({ success: true, brands });
   } catch (e) { res.status(500).json({ message: 'Server error' }); }
 });
@@ -58,7 +58,7 @@ const Project = require('./models/Project');
 app.get('/api/projects', async (req, res) => {
   try {
     const { category } = req.query;
-    const filter = category && category !== 'all' ? { category } : {};
+    const filter = category && category !== 'all' ? { category, deletedAt: null } : { deletedAt: null };
     const projects = await Project.find(filter).sort({ sortOrder: 1, createdAt: -1 });
     res.json({ success: true, projects });
   } catch (e) { res.status(500).json({ message: 'Server error' }); }
@@ -68,7 +68,7 @@ app.get('/api/projects', async (req, res) => {
 const Influencer = require('./models/Influencer');
 app.get('/api/influencers', async (req, res) => {
   try {
-    const influencers = await Influencer.find().sort({ createdAt: -1 });
+    const influencers = await Influencer.find({ deletedAt: null }).sort({ createdAt: -1 });
     res.json({ success: true, influencers });
   } catch (e) { res.status(500).json({ message: 'Server error' }); }
 });
