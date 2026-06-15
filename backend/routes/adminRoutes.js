@@ -14,6 +14,7 @@ const Influencer = require('../models/Influencer');
 const Brand = require('../models/Brand');
 const Project = require('../models/Project');
 const HiringApplication = require('../models/HiringApplication');
+const Creator = require('../models/Creator');
 
 const router = express.Router();
 
@@ -246,5 +247,66 @@ router.delete('/projects/:id', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-// Public endpoint for homepage brands
+// ── Creators ──────────────────────────────────────────────────────
+router.get('/creators', async (req, res, next) => {
+  try {
+    const creators = await Creator.find({ deletedAt: null }).sort({ createdAt: -1 });
+    res.json({ success: true, creators });
+  } catch (e) { next(e); }
+});
+
+router.post('/creators', upload.single('image'), async (req, res, next) => {
+  try {
+    const { name, instagramFollowers, averageReach, socialLink, backgroundText } = req.body;
+    if (!name?.trim()) return res.status(400).json({ message: 'Name is required' });
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    const creator = await Creator.create({
+      name: name.trim(),
+      imageUrl,
+      instagramFollowers: instagramFollowers?.trim() || '',
+      averageReach: averageReach?.trim() || '',
+      socialLink: socialLink?.trim() || '',
+      backgroundText: backgroundText?.trim() || 'YBEX',
+    });
+    res.status(201).json({ success: true, creator });
+  } catch (e) { next(e); }
+});
+
+router.patch('/creators/:id', upload.single('image'), async (req, res, next) => {
+  try {
+    const { name, instagramFollowers, averageReach, socialLink, backgroundText } = req.body;
+    const existing = await Creator.findById(req.params.id);
+    if (!existing) return res.status(404).json({ message: 'Not found' });
+    const updates = {
+      name: name?.trim() || existing.name,
+      instagramFollowers: instagramFollowers?.trim() ?? existing.instagramFollowers,
+      averageReach: averageReach?.trim() ?? existing.averageReach,
+      socialLink: socialLink?.trim() ?? existing.socialLink,
+      backgroundText: backgroundText?.trim() ?? existing.backgroundText,
+    };
+    if (req.file) {
+      // Delete old image if local
+      if (existing.imageUrl && existing.imageUrl.startsWith('/uploads/')) {
+        const fp = path.join(__dirname, '../uploads', path.basename(existing.imageUrl));
+        if (fs.existsSync(fp)) fs.unlinkSync(fp);
+      }
+      updates.imageUrl = `/uploads/${req.file.filename}`;
+    }
+    const creator = await Creator.findByIdAndUpdate(req.params.id, updates, { new: true });
+    res.json({ success: true, creator });
+  } catch (e) { next(e); }
+});
+
+router.delete('/creators/:id', async (req, res, next) => {
+  try {
+    const creator = await Creator.findByIdAndUpdate(
+      req.params.id,
+      { deletedAt: new Date(), deletedBy: req.user._id },
+      { new: true }
+    );
+    if (!creator) return res.status(404).json({ message: 'Not found' });
+    res.json({ success: true });
+  } catch (e) { next(e); }
+});
+
 module.exports = router;

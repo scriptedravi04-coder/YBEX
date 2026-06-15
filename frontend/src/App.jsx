@@ -22,6 +22,7 @@ import AdminEnquiries from './pages/Admin/AdminEnquiries';
 import AdminUsers from './pages/Admin/AdminUsers';
 import AdminAboutTeam from './pages/Admin/AdminAboutTeam';
 import AdminInfluencers from './pages/Admin/AdminInfluencers';
+import AdminCreators from './pages/Admin/AdminCreators';
 import AdminBrands from './pages/Admin/AdminBrands';
 import AdminPlaceholder from './pages/Admin/AdminPlaceholder';
 import AdminHiring from './pages/Admin/AdminHiring';
@@ -69,6 +70,7 @@ export default function App() {
       <Route path="/admin/about-team" element={<AdminRoute><AdminAboutTeam /></AdminRoute>} />
       <Route path="/admin/hiring" element={<AdminRoute><AdminHiring /></AdminRoute>} />
       <Route path="/admin/influencers" element={<AdminRoute><AdminInfluencers /></AdminRoute>} />
+      <Route path="/admin/creators" element={<AdminRoute><AdminCreators /></AdminRoute>} />
       <Route path="/admin/brands" element={<AdminRoute><AdminBrands /></AdminRoute>} />
       <Route path="/admin/school-mentors" element={<AdminRoute><AdminPlaceholder title="School Mentors" icon="🎓" description="Manage school mentor profiles and assignments." /></AdminRoute>} />
       <Route path="/admin/success-stories" element={<AdminRoute><AdminSuccessStories /></AdminRoute>} />

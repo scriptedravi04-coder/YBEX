@@ -138,13 +138,23 @@ export default function Portfolio() {
   };
 
   return (
-    <section className="page-shell" style={{ minHeight: '100vh', paddingBottom: '6rem' }}>
+    <section className="page-shell portfolio-page-container">
+      <style>{`
+        .portfolio-page-container {
+          background-color: #000000 !important;
+          background-image: radial-gradient(circle at 50% 0%, rgba(228, 241, 65, 0.18) 0%, rgba(228, 241, 65, 0.05) 30%, transparent 65%) !important;
+          min-height: 100vh;
+          padding-top: 0px !important;
+          padding-bottom: 6rem;
+          position: relative;
+        }
+      `}</style>
       <div className="container">
 
         {/* Hero */}
         <motion.div
           initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}
-          style={{ paddingTop: '4rem', paddingBottom: '3rem' }}
+          style={{ paddingTop: '0px', paddingBottom: '3rem' }}
         >
           <h1 style={{ fontSize: 'clamp(2.5rem, 7vw, 5rem)', fontWeight: 900, color: '#fff', lineHeight: 1.0, letterSpacing: '-0.04em', margin: '0 0 1rem' }}>
             Work That<br />

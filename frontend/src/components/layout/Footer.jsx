@@ -57,7 +57,7 @@ export default function Footer() {
         </div>
       </Link>
 
-      <motion.div 
+      <motion.div
         className="container footer-grid-premium"
         variants={containerVariants}
         initial="hidden"
@@ -185,13 +185,9 @@ export default function Footer() {
         <p className="footer-copy-text">
           &copy; 2026 YBEX MEDIA. ALL RIGHTS RESERVED.
         </p>
-        <div className="status-indicator">
-          <span className="status-dot"></span> STATUS: OPERATIONAL
-        </div>
+
         <div className="footer-bottom-actions">
-          <a href="https://ybexmedia.com" target="_blank" rel="noopener noreferrer" className="footer-domain-link">
-            YBEXMEDIA.COM
-          </a>
+
           <Link to="/admin/login" className="footer-go-admin-btn">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
@@ -585,7 +581,7 @@ export default function Footer() {
           line-height: 0.8;
           letter-spacing: -0.06em;
           text-transform: uppercase;
-          color: rgba(255, 255, 255, 0.08);
+          color: rgba(255, 255, 255, 0.03);
           user-select: none;
           pointer-events: none;
           z-index: 0;

@@ -82,6 +82,15 @@ app.get('/api/team-members', async (req, res) => {
   } catch (e) { res.status(500).json({ message: 'Server error' }); }
 });
 
+// Public creators endpoint (no auth required)
+const Creator = require('./models/Creator');
+app.get('/api/creators', async (req, res) => {
+  try {
+    const creators = await Creator.find({ deletedAt: null }).sort({ createdAt: -1 });
+    res.json({ success: true, creators });
+  } catch (e) { res.status(500).json({ message: 'Server error' }); }
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server is running' });

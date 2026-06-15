@@ -790,7 +790,7 @@ export default function Academy() {
       `}</style>
 
       {/* ── HERO ── */}
-      <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '120px 20px 80px', overflow: 'hidden', zIndex: 2 }}>
+      <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '10px 20px 80px', overflow: 'hidden', zIndex: 2 }}>
         {/* Purple Glow Effects */}
         <div style={{ position: 'absolute', top: '8%', left: '50%', transform: 'translateX(-50%)', width: '700px', height: '400px', background: 'radial-gradient(ellipse,rgba(139,92,246,0.4) 0%,transparent 70%)', filter: 'blur(60px)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', bottom: '15%', left: '20%', width: '400px', height: '300px', background: 'radial-gradient(ellipse,rgba(124,58,237,0.25) 0%,transparent 70%)', filter: 'blur(80px)', pointerEvents: 'none' }} />

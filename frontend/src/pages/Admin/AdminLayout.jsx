@@ -15,6 +15,7 @@ const NAV_TABS = [
   { label: 'Influencers',      path: '/admin/influencers',      icon: '🌟', hoverColor: '#ec4899' },
   { label: 'Brands',           path: '/admin/brands',           icon: '🏷️', hoverColor: '#14b8a6' },
   { label: 'School Mentors',   path: '/admin/school-mentors',   icon: '🎓', hoverColor: '#8b5cf6' },
+  { label: 'Our Creators',     path: '/admin/creators',         icon: '🔮', hoverColor: '#E4F141' },
   { label: 'Success Stories',  path: '/admin/success-stories',  icon: '🏆', hoverColor: '#f59e0b' },
   { label: 'Scholarship',      path: '/admin/scholarship',      icon: '🎖️', hoverColor: '#06b6d4' },
   { label: 'Activity Logs',    path: '/admin/activity-logs',    icon: '📊', hoverColor: '#6366f1' },
