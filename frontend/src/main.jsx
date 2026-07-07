@@ -43,6 +43,12 @@ function SmoothScroll({ children }) {
   return children;
 }
 
+if (import.meta.hot) {
+  import.meta.hot.on('vite:beforeFullReload', () => {
+    throw '(skipping full reload to prevent HMR loop)';
+  });
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ThemeProvider>

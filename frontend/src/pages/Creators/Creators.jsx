@@ -399,7 +399,15 @@ export default function Creators() {
           .mx-mosaic { gap: 3px; padding: 80px 3px 3px 3px; }
           .mx-row { gap: 3px; }
           .mx-cell { min-width: 50px; min-height: 45px; }
-          .mx-cell-info { padding: 10px 12px; }
+          .mx-cell-info {
+            transform: translateY(0) !important;
+            opacity: 1 !important;
+            padding: 8px 10px !important;
+            background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.85) 100%) !important;
+          }
+          .mx-cell-grad {
+            opacity: 0.95 !important;
+          }
         }
       `}</style>
 

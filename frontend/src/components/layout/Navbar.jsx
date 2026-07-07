@@ -97,9 +97,36 @@ export default function Navbar() {
 
   return (
     <>
+      <div className={`navbar-glassy-backdrop ${scrolled ? 'is-scrolled' : ''}`} />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         
+        .navbar-glassy-backdrop {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 120px;
+          background: rgba(0, 0, 0, 0.7) !important;
+          backdrop-filter: blur(25px) saturate(180%) !important;
+          -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
+          z-index: 980;
+          pointer-events: none;
+          transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .navbar-glassy-backdrop.is-scrolled {
+          height: 96px;
+          background: rgba(0, 0, 0, 0.85) !important;
+        }
+        @media (max-width: 768px) {
+          .navbar-glassy-backdrop {
+            height: 90px;
+          }
+          .navbar-glassy-backdrop.is-scrolled {
+            height: 76px;
+          }
+        }
+
         .site-header {
           position: fixed;
           top: 16px;
@@ -161,6 +188,23 @@ export default function Navbar() {
           position: relative;
           margin-right: 8px;
         }
+        .brand-mark img {
+          height: 52px;
+          width: auto;
+          object-fit: contain;
+          transition: height 0.3s ease;
+        }
+        .site-header.is-scrolled .brand-mark img {
+          height: 44px;
+        }
+        @media (max-width: 768px) {
+          .brand-mark img {
+            height: 40px;
+          }
+          .site-header.is-scrolled .brand-mark img {
+            height: 34px;
+          }
+        }
         .logo-simple {
           display: flex;
           align-items: center;
@@ -171,9 +215,6 @@ export default function Navbar() {
           color: #ffffff;
           user-select: none;
           transition: color 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .site-header.is-scrolled .brand-mark img {
-          height: 72px;
         }
         .brand-glow {
           position: absolute;

@@ -228,6 +228,7 @@ function YbexSpeaking({ show }) {
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="ybex-speaking-wrapper"
           style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}
         >
           {/* YBEX letters */}
@@ -377,7 +378,7 @@ export default function Contact() {
               Contact
             </motion.p>
 
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'clamp(1.2rem, 3vw, 2.5rem)' }}>
+            <div className="contact-avatar-row" style={{ display: 'flex', alignItems: 'flex-start', gap: 'clamp(1.2rem, 3vw, 2.5rem)' }}>
               <div style={{ flexShrink: 0 }}>
                 <PhoneDrop onComplete={() => setPhoneDropDone(true)} />
               </div>
@@ -623,6 +624,20 @@ export default function Contact() {
           .contact-map-frame { height: 280px !important; }
         }
         @media (max-width: 500px) { .form-row-half { grid-template-columns: 1fr !important; } }
+        @media (max-width: 480px) {
+          .contact-avatar-row {
+            flex-direction: column !important;
+            align-items: center !important;
+            text-align: center !important;
+          }
+          .ybex-speaking-wrapper {
+            align-items: center !important;
+            text-align: center !important;
+          }
+          .ybex-speaking-wrapper div {
+            justify-content: center !important;
+          }
+        }
         input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.22); }
         input:-webkit-autofill, input:-webkit-autofill:focus {
           -webkit-box-shadow: 0 0 0 1000px rgba(8,8,8,0.98) inset !important;

@@ -333,12 +333,14 @@ function CoverflowCarousel({ members }) {
   }, [activeIdx, isSectionHovered]);
 
   useEffect(() => {
-    if (isSectionHovered) return;
+    if (isSectionHovered || !members || members.length === 0) return;
     const timer = setInterval(() => {
       setActiveIdx((prev) => (prev + 1) % members.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, [isSectionHovered, members.length]);
+  }, [isSectionHovered, members?.length]);
+
+  if (!members || members.length === 0) return null;
 
   const memberStories = {
     'radhakrishn': "Pioneered YBEX's vision, aligning creator networks with digital strategies to scale brand presence from zero to millions of organic views.",
@@ -708,60 +710,27 @@ function CoverflowCarousel({ members }) {
   );
 }
 
-// ─── Trust Banner — cycles between "THEY TRUST US" label and brand logo marquee ──
-// Phase 0 (3s): yellow label visible, logos hidden
-// Transition: label slides out to left, logos slide in from right
-// Phase 1 (10s): logos scrolling, label hidden
-// Transition: logos slide out to left, label slides in from right
-// Repeat
 function TrustBanner({ brands }) {
-  const [showLabel, setShowLabel] = useState(true);
+  if (!brands || brands.length === 0) return null;
 
-  useEffect(() => {
-    let timeout;
-    if (showLabel) {
-      // Show label for 3s then switch to logos
-      timeout = setTimeout(() => setShowLabel(false), 3000);
-    } else {
-      // Show logos for 10s then switch back to label
-      timeout = setTimeout(() => setShowLabel(true), 10000);
-    }
-    return () => clearTimeout(timeout);
-  }, [showLabel]);
+  // Duplicate brands for seamless scrolling
+  const displayBrands = [...brands, ...brands, ...brands, ...brands];
 
   return (
     <div className="trust-marquee-container">
-      <AnimatePresence mode="wait" initial={false}>
-        {showLabel ? (
-          /* ── Yellow "THEY TRUST US" label ── */
-          <motion.div
-            key="label"
-            className="trust-static-label"
-            initial={{ x: '100%', opacity: 0 }}
-            animate={{ x: '0%', opacity: 1 }}
-            exit={{ x: '-100%', opacity: 0 }}
-            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-          >
-            THEY TRUST US
-          </motion.div>
-        ) : (
-          /* ── Scrolling brand logos ── */
-          <motion.div
-            key="logos"
-            className="trust-marquee-track-container"
-            initial={{ x: '100%', opacity: 0 }}
-            animate={{ x: '0%', opacity: 1 }}
-            exit={{ x: '-100%', opacity: 0 }}
-            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <div className="trust-marquee-track">
-              {brands.map((brand, idx) => (
-                <MarqueeBrandItem key={idx} brand={brand} itemClass="trust-marquee-item" />
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Left static label */}
+      <div className="trust-static-label">
+        THEY TRUST US
+      </div>
+      
+      {/* Right scrolling brands with fade effects */}
+      <div className="trust-marquee-track-container">
+        <div className="trust-marquee-track">
+          {displayBrands.map((brand, idx) => (
+            <MarqueeBrandItem key={idx} brand={brand} itemClass="trust-marquee-item" />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -826,115 +795,14 @@ export default function AboutStorySection() {
     return () => clearInterval(interval);
   }, [hoveredHero]);
 
-  // 2. Scroll-jacking logic
+  // 2. Scroll-jacking logic disabled to prevent automatic scroll-jacking resets
   useEffect(() => {
-    const sectionEl = heroSectionRef.current;
-    if (!sectionEl) return;
-
-    const handleWheel = (e) => {
-      const rect = sectionEl.getBoundingClientRect();
-      const isHeroActive = rect.top >= -80 && rect.top <= 80;
-      if (!isHeroActive) return;
-
-      const now = Date.now();
-      const isScrollingDown = e.deltaY > 0;
-      const currentIndex = sliderIndexRef.current;
-
-      if (now - lastScrollTime.current < 900) {
-        if (isScrollingDown && currentIndex < 2) {
-          e.preventDefault();
-          window.scrollTo({ top: 0, behavior: 'instant' });
-        } else if (!isScrollingDown && currentIndex > 0) {
-          e.preventDefault();
-          window.scrollTo({ top: 0, behavior: 'instant' });
-        }
-        return;
-      }
-
-      if (isScrollingDown) {
-        if (currentIndex < 2) {
-          e.preventDefault();
-          changeSlide(currentIndex + 1);
-          lastScrollTime.current = now;
-          window.scrollTo({ top: 0, behavior: 'instant' });
-        }
-      } else {
-        if (currentIndex > 0) {
-          e.preventDefault();
-          changeSlide(currentIndex - 1);
-          lastScrollTime.current = now;
-          window.scrollTo({ top: 0, behavior: 'instant' });
-        }
-      }
-    };
-
-    let touchStartY = 0;
-    const handleTouchStart = (e) => {
-      touchStartY = e.touches[0].clientY;
-    };
-
-    const handleTouchMove = (e) => {
-      const rect = sectionEl.getBoundingClientRect();
-      const isHeroActive = rect.top >= -80 && rect.top <= 80;
-      if (!isHeroActive) return;
-
-      const touchEndY = e.touches[0].clientY;
-      const diffY = touchStartY - touchEndY;
-      const now = Date.now();
-      const currentIndex = sliderIndexRef.current;
-
-      if (Math.abs(diffY) > 30) {
-        const isSwipingDown = diffY > 0;
-
-        if (now - lastScrollTime.current < 900) {
-          if (isSwipingDown && currentIndex < 2) {
-            e.preventDefault();
-            window.scrollTo({ top: 0, behavior: 'instant' });
-          } else if (!isSwipingDown && currentIndex > 0) {
-            e.preventDefault();
-            window.scrollTo({ top: 0, behavior: 'instant' });
-          }
-          return;
-        }
-
-        if (isSwipingDown) {
-          if (currentIndex < 2) {
-            e.preventDefault();
-            changeSlide(currentIndex + 1);
-            lastScrollTime.current = now;
-            window.scrollTo({ top: 0, behavior: 'instant' });
-          }
-        } else {
-          if (currentIndex > 0) {
-            e.preventDefault();
-            changeSlide(currentIndex - 1);
-            lastScrollTime.current = now;
-            window.scrollTo({ top: 0, behavior: 'instant' });
-          }
-        }
-      }
-    };
-
-    sectionEl.addEventListener('wheel', handleWheel, { passive: false });
-    sectionEl.addEventListener('touchstart', handleTouchStart, { passive: true });
-    sectionEl.addEventListener('touchmove', handleTouchMove, { passive: false });
-
-    return () => {
-      sectionEl.removeEventListener('wheel', handleWheel);
-      sectionEl.removeEventListener('touchstart', handleTouchStart);
-      sectionEl.removeEventListener('touchmove', handleTouchMove);
-    };
+    // Scroll-jacking wheel and touch listeners removed to prevent resetting layout/page top scroll
   }, []);
 
-  // 2b. Strict scroll guard to lock scrollY to 0
+  // 2b. Strict scroll guard disabled to prevent resetting scroll position
   useEffect(() => {
-    const handleScrollLock = () => {
-      if (sliderIndexRef.current < 2 && window.scrollY > 0 && window.scrollY < window.innerHeight * 0.4) {
-        window.scrollTo({ top: 0, behavior: 'instant' });
-      }
-    };
-    window.addEventListener('scroll', handleScrollLock, { passive: true });
-    return () => window.removeEventListener('scroll', handleScrollLock);
+    // Scroll lock disabled to prevent automatic jump reset
   }, []);
 
   useEffect(() => {
@@ -973,25 +841,8 @@ export default function AboutStorySection() {
   const founders = teamMembers.filter((m) => m.coreTeam === 'Founder');
   const powerhouse = teamMembers.filter((m) => m.coreTeam !== 'Founder');
 
-  const displayFounders = founders.length > 0
-    ? [
-      ...founders.filter(f => !['radhakrishn', 'sharadh', 'ravi'].includes(f.name.toLowerCase())),
-      ...defaultFounders.map(df => {
-        const match = founders.find(f => f.name.toLowerCase() === df.name.toLowerCase());
-        return match ? { ...df, ...match } : df;
-      })
-    ]
-    : defaultFounders;
-
-  const displayPowerhouse = powerhouse.length > 0
-    ? [
-      ...powerhouse.filter(p => !['sarthak', 'himanshu', 'vikas malik'].includes(p.name.toLowerCase())),
-      ...defaultPowerhouse.map(dp => {
-        const match = powerhouse.find(p => p.name.toLowerCase() === dp.name.toLowerCase());
-        return match ? { ...dp, ...match } : dp;
-      })
-    ]
-    : defaultPowerhouse;
+  const displayFounders = founders;
+  const displayPowerhouse = powerhouse;
 
   // 3D tilt handlers for Growth cards
   const handleMouseMove = (e) => {
@@ -1663,45 +1514,71 @@ export default function AboutStorySection() {
           100% { transform: translateX(-50%); }
         }
 
-        /* THEY TRUST US — fade-cycle banner */
+        /* THEY TRUST US — static left label and marquee right */
         .trust-marquee-container {
           position: relative;
           height: 80px;
           background: #000000;
           border-top: 1px solid rgba(255,255,255,0.08);
           border-bottom: 1px solid rgba(255,255,255,0.08);
+          display: flex;
+          align-items: center;
           overflow: hidden;
           z-index: 10;
           width: 100%;
         }
 
-        /* The yellow "THEY TRUST US" label — full width, centered */
         .trust-static-label {
-          position: absolute;
-          inset: 0;
-          background: #E4F141;
-          color: #000000;
+          background: #000000;
+          color: #E4F141; /* Accent Yellow */
           font-weight: 900;
-          font-size: 1.15rem;
+          font-size: 0.95rem;
           letter-spacing: 0.15em;
           text-transform: uppercase;
           display: flex;
           align-items: center;
-          justify-content: center;
+          padding: 0 35px;
+          height: 100%;
           white-space: nowrap;
+          border-right: 1px solid rgba(255,255,255,0.08);
+          z-index: 30;
+          position: relative;
+        }
+
+        .trust-marquee-track-container {
+          flex-grow: 1;
+          height: 100%;
+          overflow: hidden;
+          display: flex;
+          align-items: center;
+          position: relative;
+          z-index: 10;
+          background: #000;
+        }
+
+        /* Fade effects on the left and right corners of the marquee track */
+        .trust-marquee-track-container::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          width: 120px;
+          background: linear-gradient(to right, #000000 20%, transparent 100%);
           z-index: 20;
           pointer-events: none;
         }
 
-        /* The logos strip — full width, sits behind label when hidden */
-        .trust-marquee-track-container {
+        .trust-marquee-track-container::after {
+          content: '';
           position: absolute;
-          inset: 0;
-          overflow: hidden;
-          display: flex;
-          align-items: center;
-          z-index: 10;
-          background: #000;
+          right: 0;
+          top: 0;
+          bottom: 0;
+          width: 70px;
+          background: linear-gradient(to left, #000000 0%, transparent 100%);
+          z-index: 20;
+          pointer-events: none;
         }
 
         .trust-marquee-track {
@@ -1709,8 +1586,7 @@ export default function AboutStorySection() {
           align-items: center;
           gap: 60px;
           white-space: nowrap;
-          animation: trust-marquee-scroll 40s linear infinite;
-          padding-left: 60px;
+          animation: trust-marquee-scroll 25s linear infinite;
         }
 
         .trust-marquee-item {
@@ -1943,6 +1819,38 @@ export default function AboutStorySection() {
           }
           .coverflow-name {
             font-size: 1.3rem;
+          }
+        }
+        @media (max-width: 560px) {
+          .about-hero-title {
+            font-size: clamp(2rem, 10vw, 2.8rem) !important;
+          }
+          .growth-title-solid, .growth-title-outline {
+            font-size: clamp(1.8rem, 10vw, 2.5rem) !important;
+          }
+          .left-growth-card-title {
+            font-size: clamp(1.5rem, 8vw, 1.9rem) !important;
+          }
+          .stat-card-number {
+            font-size: clamp(2.2rem, 12vw, 3rem) !important;
+          }
+          .coverflow-track {
+            height: 320px !important;
+          }
+          .coverflow-card {
+            width: min(250px, 85vw) !important;
+            height: 300px !important;
+          }
+          .team-section-title {
+            font-size: clamp(2rem, 12vw, 3rem) !important;
+          }
+          .left-growth-card {
+            padding: 24px !important;
+            height: 320px !important;
+          }
+          .stat-card {
+            padding: 24px !important;
+            height: 180px !important;
           }
         }
       `}</style>
@@ -2185,24 +2093,28 @@ export default function AboutStorySection() {
         </section>
 
         {/* SECTION 3: THE VISIONARIES (FOUNDERS) */}
-        <section className="about-team-section" id="team-founders-section">
-          <div className="team-heading-container">
-            <h2 className="team-section-title">The Visionaries</h2>
-            <p className="team-section-subtitle">The Founders of YBEX</p>
-          </div>
+        {displayFounders.length > 0 && (
+          <section className="about-team-section" id="team-founders-section">
+            <div className="team-heading-container">
+              <h2 className="team-section-title">The Visionaries</h2>
+              <p className="team-section-subtitle">The Founders of YBEX</p>
+            </div>
 
-          <CoverflowCarousel members={displayFounders} />
-        </section>
+            <CoverflowCarousel members={displayFounders} />
+          </section>
+        )}
 
         {/* SECTION 4: OUR POWERHOUSE */}
-        <section className="about-team-section" style={{ borderTop: 'none', paddingTop: 0 }}>
-          <div className="team-heading-container">
-            <h2 className="team-section-title">Our Powerhouse</h2>
-            <p className="team-section-subtitle">Meet the creatives behind the scenes</p>
-          </div>
+        {displayPowerhouse.length > 0 && (
+          <section className="about-team-section" style={{ borderTop: 'none', paddingTop: 0 }}>
+            <div className="team-heading-container">
+              <h2 className="team-section-title">Our Powerhouse</h2>
+              <p className="team-section-subtitle">Meet the creatives behind the scenes</p>
+            </div>
 
-          <CoverflowCarousel members={displayPowerhouse} />
-        </section>
+            <CoverflowCarousel members={displayPowerhouse} />
+          </section>
+        )}
       </div>
     </>
   );

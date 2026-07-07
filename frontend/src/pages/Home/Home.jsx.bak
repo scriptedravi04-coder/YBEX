@@ -1,0 +1,895 @@
+import React, { useEffect, useState, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'motion/react';
+import gsap from 'gsap';
+import { animate } from 'animejs/animation';
+import { stagger } from 'animejs/utils';
+import axiosInstance from '../../api/axiosInstance';
+import '../../styles/MinimalHome.css';
+
+// siteData imports
+import {
+  heroGallery,
+  talentProfiles,
+  marqueeItems
+} from '../../content/siteData';
+
+// Import new premium sections
+import InfiniteMarquee from '../../components/InfiniteMarquee';
+import TestimonialSection from '../../components/TestimonialSection';
+import PricingSection from '../../components/PricingSection';
+import TestimonialCarousel from '../../components/TestimonialCarousel';
+import ProjectsSection from '../../components/ProjectsSection';
+import PartnerSection from '../../components/PartnerSection';
+import EngineTechFooter from '../../components/EngineTechFooter';
+import BottomNav from '../../components/BottomNav';
+
+// API Images resolver helper
+const API_BASE = (import.meta.env.VITE_API_URL || '/api').replace('/api', '');
+const resolveImg = (url) => {
+  if (!url) return null;
+  if (url.startsWith('/uploads/')) {
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname;
+      const isIP = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(hostname);
+      if (isIP && hostname !== '127.0.0.1') {
+        return `http://${hostname}:5000${url}`;
+      }
+    }
+    return `${API_BASE}${url}`;
+  }
+  return url;
+};
+
+// Cursor Particles Background Component (Canvas based, mouse parallax, neon yellow)
+function CursorParticlesBackground() {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    const particles = [];
+    const particleCount = 80;
+
+    let mouse = { x: width / 2, y: height / 2, targetX: width / 2, targetY: height / 2 };
+
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.vx = (Math.random() - 0.5) * 0.35;
+        this.vy = (Math.random() - 0.5) * 0.35;
+        this.size = Math.random() * 2 + 1; // 1px to 3px
+        this.alpha = Math.random() * 0.4 + 0.15; // 0.15 to 0.55
+        this.parallaxFactor = this.size * 0.018; // Larger particles move more
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // Wrap around edges
+        if (this.x < 0) this.x = width;
+        if (this.x > width) this.x = 0;
+        if (this.y < 0) this.y = height;
+        if (this.y > height) this.y = 0;
+      }
+
+      draw() {
+        const dx = (mouse.x - width / 2) * this.parallaxFactor;
+        const dy = (mouse.y - height / 2) * this.parallaxFactor;
+
+        ctx.beginPath();
+        ctx.arc(this.x + dx, this.y + dy, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(228, 241, 65, ${this.alpha})`;
+        ctx.shadowBlur = this.size * 2;
+        ctx.shadowColor = '#E4F141';
+        ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < particleCount; i++) {
+      particles.push(new Particle());
+    }
+
+    const handleMouseMove = (e) => {
+      mouse.targetX = e.clientX;
+      mouse.targetY = e.clientY;
+    };
+
+    const handleResize = () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      particles.forEach(p => p.reset());
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('resize', handleResize);
+
+    let animationId;
+    const render = () => {
+      mouse.x += (mouse.targetX - mouse.x) * 0.08;
+      mouse.y += (mouse.targetY - mouse.y) * 0.08;
+
+      ctx.clearRect(0, 0, width, height);
+      ctx.shadowBlur = 0;
+
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+
+      animationId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      cancelAnimationFrame(animationId);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        pointerEvents: 'none',
+        zIndex: 1,
+      }}
+    />
+  );
+}
+
+// 3D Curved Gallery Component (dynamic 3D curve layout with left/right split and laser scanner)
+function ThreeDCurvedGallery({ creators, brands }) {
+  const containerRef = useRef(null);
+  const trackRef = useRef(null);
+
+  // Duplicate creators if length is small to guarantee seamless horizontal looping
+  let activeCreators = creators;
+  if (activeCreators.length > 0 && activeCreators.length < 8) {
+    activeCreators = [...activeCreators, ...activeCreators, ...activeCreators];
+  }
+
+  // Same for brands
+  let activeBrands = brands;
+  if (activeBrands.length > 0 && activeBrands.length < 8) {
+    activeBrands = [...activeBrands, ...activeBrands, ...activeBrands];
+  }
+
+  useEffect(() => {
+    if (!containerRef.current || !trackRef.current) return;
+    const container = containerRef.current;
+    const track = trackRef.current;
+    const cards = track.children;
+
+    let scrollX = 0;
+    let animationFrameId;
+    const cardWidthWithGap = 280; // cardWidth (250px) + gap (30px)
+    const totalWidth = activeCreators.length * cardWidthWithGap;
+    const speed = 1.3; // scroll speed from left to right
+
+    const update = () => {
+      scrollX += speed;
+      if (scrollX >= totalWidth) {
+        scrollX -= totalWidth;
+      }
+
+      const containerWidth = container.offsetWidth || window.innerWidth;
+      const centerX = containerWidth / 2;
+
+      for (let i = 0; i < cards.length; i++) {
+        const card = cards[i];
+        const baseTrackX = i * cardWidthWithGap;
+
+        // Wrapped horizontal position
+        let relativeX = (baseTrackX + scrollX) % totalWidth;
+        if (relativeX < 0) {
+          relativeX += totalWidth;
+        }
+
+        // Apply shift so cards wrap outside the container edges
+        let cardX = relativeX - 280;
+
+        if (cardX > containerWidth + 280) {
+          cardX -= totalWidth;
+        } else if (cardX < -280) {
+          cardX += totalWidth;
+        }
+
+        // Horizontal center of card relative to container center
+        const cardCenterX = cardX + 125;
+        const distFromCenter = cardCenterX - centerX;
+        const normDist = distFromCenter / (containerWidth / 2 || 1);
+        const clampedDist = Math.max(-1.5, Math.min(1.5, normDist));
+
+        // 3D bend configuration
+        const maxRotation = 35; // degrees
+        const maxDepth = -160;  // pixels
+        const rotateY = -clampedDist * maxRotation;
+        const translateZ = -Math.abs(clampedDist) * maxDepth;
+        const translateY = Math.abs(clampedDist) * 18;
+        const scale = 1 - Math.min(0.12, Math.abs(clampedDist) * 0.08);
+
+        // Hardware-accelerated hardware mutations
+        card.style.transform = `translate3d(${cardX}px, ${translateY}px, ${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`;
+
+        // Z-Index depth sorting
+        const zIndex = Math.round(100 - Math.abs(clampedDist) * 50);
+        card.style.zIndex = zIndex;
+
+        // Morph effect: Show influencer on the left side of the laser line, Brand on the right side
+        const influencerSide = card.querySelector('.card-side-influencer');
+        const brandSide = card.querySelector('.card-side-brand');
+
+        if (influencerSide && brandSide) {
+          const localSplitX = centerX - cardX;
+          const splitPercent = Math.max(0, Math.min(100, (localSplitX / 250) * 100));
+
+          if (splitPercent === 100) {
+            // Entirely on the left of laser (Influencer)
+            influencerSide.style.opacity = '1';
+            influencerSide.style.pointerEvents = 'auto';
+            influencerSide.style.clipPath = 'none';
+
+            brandSide.style.opacity = '0';
+            brandSide.style.pointerEvents = 'none';
+            brandSide.style.clipPath = 'none';
+          } else if (splitPercent === 0) {
+            // Entirely on the right of laser (Brand)
+            influencerSide.style.opacity = '0';
+            influencerSide.style.pointerEvents = 'none';
+            influencerSide.style.clipPath = 'none';
+
+            brandSide.style.opacity = '1';
+            brandSide.style.pointerEvents = 'auto';
+            brandSide.style.clipPath = 'none';
+          } else {
+            // Crossing the laser line (Split morph)
+            influencerSide.style.opacity = '1';
+            influencerSide.style.pointerEvents = 'auto';
+            influencerSide.style.clipPath = `polygon(0% 0%, ${splitPercent}% 0%, ${splitPercent}% 100%, 0% 100%)`;
+
+            brandSide.style.opacity = '1';
+            brandSide.style.pointerEvents = 'auto';
+            brandSide.style.clipPath = `polygon(${splitPercent}% 0%, 100% 0%, 100% 100%, ${splitPercent}% 100%)`;
+          }
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(update);
+    };
+
+    animationFrameId = requestAnimationFrame(update);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [activeCreators.length, activeBrands.length]);
+
+  return (
+    <div ref={containerRef} className="three-d-gallery-wrapper mt-16 select-none scroll-reveal-up-custom opacity-0">
+      {/* Glowing shining aura backdrop behind laser separator */}
+      <div className="laser-shining-aura" />
+
+      {/* Central green neon laser beam separator */}
+      <div className="gallery-laser-line" />
+
+      <div
+        ref={trackRef}
+        className="three-d-gallery-container"
+      >
+        {activeCreators.map((item, idx) => {
+          // Select corresponding brand for morphing back side
+          const brand = activeBrands[idx % activeBrands.length];
+          return (
+            <div key={`${item._id || idx}-${idx}`} className="three-d-card group cursor-pointer">
+
+              {/* Influencer Front Side (visible to the left of the laser line) */}
+              <div className="card-side-influencer">
+                <div className="three-d-card-img-container">
+                  <img
+                    src={resolveImg(item.imageUrl)}
+                    alt={item.name}
+                    className="three-d-card-img"
+                    onError={(e) => {
+                      e.target.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80';
+                    }}
+                  />
+                  <div className="three-d-card-overlay" />
+                </div>
+
+                <div className="three-d-card-details">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-xs font-black text-white uppercase tracking-wider">{item.name}</h4>
+                      <span className="text-[7px] bg-[#E4F141] text-black px-1.5 py-0.5 rounded-full font-black">CREATOR</span>
+                    </div>
+                    <span className="text-[8px] text-white/40 font-semibold block mt-1">Verified Partner</span>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-1 text-center bg-white/5 border border-white/5 py-1.5 rounded-xl">
+                    <div>
+                      <span className="text-[5px] text-white/30 uppercase block font-semibold">Followers</span>
+                      <strong className="text-[8px] text-white font-bold">{item.followersCount || '800K'}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[5px] text-white/30 uppercase block font-semibold">Reach</span>
+                      <strong className="text-[8px] text-[#E4F141] font-bold">{item.reach || '3M+'}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[5px] text-white/30 uppercase block font-semibold">Engagement</span>
+                      <strong className="text-[8px] text-white font-bold">{item.engagementRate || '7.2%'}</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Brand Back/Scanned Side (visible to the right of the laser line) */}
+              <div className="card-side-brand opacity-0 pointer-events-none">
+                <div className="brand-card-logo-container">
+                  {React.isValidElement(brand.logo) ? (
+                    brand.logo
+                  ) : brand.logo && typeof brand.logo === 'string' && (brand.logo.startsWith('data:') || brand.logo.startsWith('http') || brand.logo.startsWith('/')) ? (
+                    <img
+                      src={brand.logo}
+                      alt={brand.name}
+                      className="brand-card-logo-img"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  ) : (
+                    <span className="text-[#E4F141] font-black text-3xl">
+                      {brand.logo ? brand.logo : brand.name.charAt(0)}
+                    </span>
+                  )}
+                </div>
+
+                <div className="three-d-card-details">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-xs font-black text-white uppercase tracking-wider">{brand.name}</h4>
+                      <span className="text-[7px] bg-[#E4F141] text-black px-1.5 py-0.5 rounded-full font-black">BRAND</span>
+                    </div>
+                    <span className="text-[8px] text-white/40 font-semibold block mt-1">Partner Brand</span>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-1 text-center bg-white/5 border border-white/5 py-1.5 rounded-xl">
+                    <div>
+                      <span className="text-[5px] text-white/30 uppercase block font-semibold">Campaigns</span>
+                      <strong className="text-[8px] text-white font-bold">{idx % 2 === 0 ? '12' : '8'}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[5px] text-white/30 uppercase block font-semibold">Rating</span>
+                      <strong className="text-[8px] text-[#E4F141] font-bold">4.9/5</strong>
+                    </div>
+                    <div>
+                      <span className="text-[5px] text-white/30 uppercase block font-semibold">Status</span>
+                      <strong className="text-[8px] text-white font-bold">ACTIVE</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// Outlined Brand Marquee Component (moves continuously, color logos, neon yellow border)
+// Outlined Brand Marquee Component (moves continuously, color logos, neon yellow border)
+function SeparatedBrandMarquee({ brands }) {
+  if (!brands || brands.length === 0) return null;
+
+  // Duplicate brands for smooth infinite scrolling
+  const displayBrands = [...brands, ...brands, ...brands, ...brands, ...brands];
+
+  return (
+    <section className="separated-marquee-section">
+      <div className="separated-marquee-wrapper">
+        <div className="single-marquee-track">
+          {displayBrands.map((brand, idx) => (
+            <div key={`brand-${brand.name}-${idx}`} className="marquee-brand-item">
+              <div className="marquee-brand-logo-container">
+                {React.isValidElement(brand.logo) ? (
+                  brand.logo
+                ) : brand.logo && typeof brand.logo === 'string' && (brand.logo.startsWith('data:') || brand.logo.startsWith('http') || brand.logo.startsWith('/')) ? (
+                  <img
+                    src={brand.logo}
+                    alt={brand.name}
+                    className="marquee-brand-logo-img"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <span className="text-[#E4F141] font-black text-xs">
+                    {brand.logo ? brand.logo : brand.name.charAt(0)}
+                  </span>
+                )}
+              </div>
+              <span className="text-white font-bold">{brand.name}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// Default brands logo array in case DB is empty
+const MOCK_HERO_BRANDS = [
+  {
+    name: 'ROOTER',
+    logo: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
+        <rect width="24" height="24" rx="6" fill="#1C1C1E" />
+        <path d="M6 6H10V10H6V6Z" fill="#FF453A" />
+        <path d="M14 14H18V18H14V14Z" fill="#FFFFFF" />
+        <path d="M10 10H14V14H10V10Z" fill="#30D158" />
+      </svg>
+    )
+  },
+  {
+    name: 'HAPPN',
+    logo: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
+        <rect width="24" height="24" rx="6" fill="#1F2937" />
+        <path d="M7 17L17 7M17 7H10M17 7V14" stroke="#00D2FF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M17 7L7 17M7 17H14M7 17V10" stroke="#00D2FF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    )
+  },
+  {
+    name: 'ODOO',
+    logo: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
+        <rect width="24" height="24" rx="6" fill="#7C3AED" />
+        <circle cx="12" cy="12" r="5" stroke="white" strokeWidth="3" />
+      </svg>
+    )
+  },
+  {
+    name: 'MIVI',
+    logo: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
+        <rect width="24" height="24" rx="6" fill="#10B981" />
+        <path d="M6 18V6H9L12 11L15 6H18V18H15V11L12 15L9 11V18H6Z" fill="white" />
+      </svg>
+    )
+  },
+  {
+    name: 'HIMALAYA OPTICALS',
+    logo: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
+        <rect width="24" height="24" rx="6" fill="#2563EB" />
+        <circle cx="8" cy="12" r="3" stroke="white" strokeWidth="2" />
+        <circle cx="16" cy="12" r="3" stroke="white" strokeWidth="2" />
+        <line x1="11" y1="12" x2="13" y2="12" stroke="white" strokeWidth="2" />
+      </svg>
+    )
+  },
+  {
+    name: 'GYM99',
+    logo: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
+        <rect width="24" height="24" rx="6" fill="#111111" />
+        <text x="5" y="16" fill="#E4F141" fontSize="10" fontWeight="900" fontFamily="sans-serif">G99</text>
+      </svg>
+    )
+  },
+  {
+    name: 'NATURE PEARLS',
+    logo: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
+        <rect width="24" height="24" rx="6" fill="#047857" />
+        <circle cx="12" cy="12" r="4" fill="#FBBF24" />
+      </svg>
+    )
+  }
+];
+
+// Specific neon/brand color mapping to make brands colorful on hover
+const BRAND_COLORS = {
+  apple: { border: 'hover:border-white/40', rgb: '255, 255, 255', textClass: 'text-white' },
+  nike: { border: 'hover:border-[#FF5E3A]/40', rgb: '255, 94, 58', textClass: 'text-[#FF5E3A]' },
+  tesla: { border: 'hover:border-[#FF1E27]/40', rgb: '255, 30, 39', textClass: 'text-[#FF1E27]' },
+  spotify: { border: 'hover:border-[#1DB954]/40', rgb: '29, 185, 84', textClass: 'text-[#1DB954]' },
+  netflix: { border: 'hover:border-[#E50914]/40', rgb: '229, 9, 20', textClass: 'text-[#E50914]' },
+  amazon: { border: 'hover:border-[#FF9900]/40', rgb: '255, 153, 0', textClass: 'text-[#FF9900]' }
+};
+
+const getBrandColorStyle = (name, index) => {
+  const key = name.toLowerCase();
+  for (const brandKey in BRAND_COLORS) {
+    if (key.includes(brandKey)) return BRAND_COLORS[brandKey];
+  }
+  // Alternate fallbacks for database/custom brands
+  const colors = [
+    { border: 'hover:border-[#E4F141]/40', rgb: '228, 241, 65', textClass: 'text-[#E4F141]' },
+    { border: 'hover:border-[#06b6d4]/40', rgb: '6, 182, 212', textClass: 'text-[#06b6d4]' },
+    { border: 'hover:border-[#a855f7]/40', rgb: '168, 85, 247', textClass: 'text-[#a855f7]' },
+    { border: 'hover:border-[#22c55e]/40', rgb: '34, 197, 94', textClass: 'text-[#22c55e]' },
+    { border: 'hover:border-[#ec4899]/40', rgb: '236, 72, 153', textClass: 'text-[#ec4899]' }
+  ];
+  return colors[index % colors.length];
+};
+
+// Reusable Native 3D Perspective Tilt Component
+function TiltCard({ children, className, index = 0, style = {}, brandGlow = null }) {
+  const cardRef = useRef(null);
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return;
+    const card = cardRef.current;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    // Calculate rotation: 10deg max rotation
+    const rotateX = (centerY - y) / 10;
+    const rotateY = (x - centerX) / 10;
+
+    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.04, 1.04, 1.04)`;
+    card.style.setProperty('--mouse-x', `${x}px`);
+    card.style.setProperty('--mouse-y', `${y}px`);
+  };
+
+  const handleMouseLeave = () => {
+    if (!cardRef.current) return;
+    const card = cardRef.current;
+    card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+  };
+
+  const glowStyles = brandGlow
+    ? { '--glow-color-rgb': brandGlow.rgb }
+    : { '--glow-color-rgb': '228, 241, 65' };
+
+  return (
+    <div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={`${className} interactive-glow-card transition-transform duration-300 ease-out`}
+      style={{
+        transformStyle: 'preserve-3d',
+        willChange: 'transform',
+        ...glowStyles,
+        ...style
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+// 3D Animated Viewport Graphic driven by AnimeJS
+function Service3DGraphic({ activeIndex }) {
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    // Trigger animeJS entrance morphing and elastic scale
+    animate('.wireframe-item-sub', {
+      scale: [0.4, 1],
+      opacity: [0, 1],
+      translateY: [25, 0],
+      duration: 900,
+      ease: 'easeOutElastic(1, .6)',
+      delay: stagger(80)
+    });
+  }, [activeIndex]);
+
+  return (
+    <div ref={containerRef} className="relative w-full h-[350px] flex items-center justify-center ybex-3d-scene border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
+      {/* 3D Radial Grid Mesh */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(228,241,65,0.07)_0%,transparent_68%)] pointer-events-none" />
+
+      {/* Orbit Rings (3D rotated container) */}
+      <div className="relative w-64 h-64 preserve-3d" style={{ transform: 'perspective(800px) rotateX(60deg) rotateY(0deg)' }}>
+
+        {/* Outer Ring */}
+        <div className="absolute inset-0 border border-dashed border-[#E4F141]/25 rounded-full animate-[spin_25s_linear_infinite]" />
+        {/* Middle Ring */}
+        <div className="absolute inset-6 border border-dashed border-[#a855f7]/30 rounded-full animate-[spin_18s_linear_infinite_reverse]" />
+        {/* Inner Ring */}
+        <div className="absolute inset-12 border border-dotted border-[#06b6d4]/45 rounded-full animate-[spin_10s_linear_infinite]" />
+
+        {/* Staggered Geometric Nodes */}
+        <div className="absolute inset-16 flex items-center justify-center preserve-3d">
+          {activeIndex === 0 && (
+            <div className="flex gap-3 preserve-3d">
+              <div className="wireframe-item-sub w-6 h-6 bg-[#E4F141] rounded-full shadow-[0_0_20px_rgba(228,241,65,0.8)]" />
+              <div className="wireframe-item-sub w-6 h-6 bg-[#a855f7] rounded-full shadow-[0_0_20px_rgba(168,85,247,0.8)]" />
+              <div className="wireframe-item-sub w-6 h-6 bg-[#06b6d4] rounded-full shadow-[0_0_20px_rgba(6,182,212,0.8)]" />
+            </div>
+          )}
+          {activeIndex === 1 && (
+            <div className="relative w-20 h-20 border-2 border-[#E4F141]/30 rounded-2xl flex items-center justify-center preserve-3d wireframe-item-sub animate-[spin_8s_linear_infinite]">
+              <div className="w-10 h-10 bg-[#E4F141] rounded-xl shadow-[0_0_25px_#E4F141]" />
+            </div>
+          )}
+          {activeIndex === 2 && (
+            <div className="relative w-24 h-24 preserve-3d flex items-center justify-center wireframe-item-sub">
+              <div className="absolute w-full h-1 bg-[#a855f7] rotate-45 shadow-[0_0_15px_#a855f7]" />
+              <div className="absolute w-full h-1 bg-[#E4F141] -rotate-45 shadow-[0_0_15px_#E4F141]" />
+              <div className="w-8 h-8 rounded-full bg-white shadow-[0_0_20px_#fff] z-10" />
+            </div>
+          )}
+          {activeIndex === 3 && (
+            <div className="flex flex-col gap-2.5 preserve-3d wireframe-item-sub">
+              <div className="w-16 h-2 bg-[#06b6d4] rounded-full shadow-[0_0_12px_#06b6d4]" />
+              <div className="w-20 h-2 bg-[#E4F141] rounded-full shadow-[0_0_12px_#E4F141]" />
+              <div className="w-12 h-2 bg-[#a855f7] rounded-full shadow-[0_0_12px_#a855f7]" />
+            </div>
+          )}
+          {activeIndex === 4 && (
+            <div className="relative w-20 h-20 preserve-3d flex items-center justify-center wireframe-item-sub">
+              <div className="absolute inset-0 border-2 border-dashed border-[#E4F141]/40 rounded-full animate-ping" />
+              <div className="w-8 h-8 bg-white rounded-full shadow-[0_0_20px_#fff]" />
+            </div>
+          )}
+          {activeIndex === 5 && (
+            <div className="flex items-end gap-1.5 h-16 preserve-3d wireframe-item-sub">
+              <div className="w-3.5 h-8 bg-[#06b6d4] rounded-t shadow-[0_0_10px_#06b6d4]" />
+              <div className="w-3.5 h-14 bg-[#E4F141] rounded-t shadow-[0_0_10px_#E4F141]" />
+              <div className="w-3.5 h-5 bg-[#a855f7] rounded-t shadow-[0_0_10px_#a855f7]" />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Technical Blueprint Display */}
+      <div className="absolute bottom-6 left-6 right-6 bg-black/80 border border-white/5 p-5 rounded-xl backdrop-blur-md z-20">
+        <span className="text-[8px] font-mono text-[#E4F141] uppercase tracking-widest block">System Status // Active // 3D Scene</span>
+        <div className="flex justify-between items-center mt-1">
+          <span className="text-xs text-white uppercase font-black tracking-wide font-mono">
+            {activeIndex === 0 ? 'MKTG_ENGINE_RUN' :
+              activeIndex === 1 ? 'BRAND_PROM_RUN' :
+                activeIndex === 2 ? 'LOGIST_MGMT_RUN' :
+                  activeIndex === 3 ? 'CONT_STRAT_RUN' :
+                    activeIndex === 4 ? 'SOC_GROWTH_RUN' : 'LIVE_ANAL_RUN'}
+          </span>
+          <span className="text-[10px] text-white/40 font-mono">
+            PERSPECTIVE_LOADED_OK
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function Home() {
+  const [brands, setBrands] = useState([]);
+  const [brandsLoading, setBrandsLoading] = useState(true);
+  const [creators, setCreators] = useState([]);
+  const [creatorsLoading, setCreatorsLoading] = useState(true);
+
+  // Active Index for Services console
+  const [activeServiceIdx, setActiveServiceIdx] = useState(0);
+
+  // Email state for newsletter
+  const [emailInput, setEmailInput] = useState('');
+  const [subscribed, setSubscribed] = useState(false);
+
+  // Fetch brands from database
+  useEffect(() => {
+    axiosInstance.get('/brands')
+      .then((res) => setBrands(res.data.brands || []))
+      .catch(() => setBrands([]))
+      .finally(() => setBrandsLoading(false));
+  }, []);
+
+  // Fetch creators from database
+  useEffect(() => {
+    axiosInstance.get('/creators')
+      .then((res) => setCreators(res.data.creators || []))
+      .catch(() => setCreators([]))
+      .finally(() => setCreatorsLoading(false));
+  }, []);
+
+  const handleSubscribeSubmit = (e) => {
+    e.preventDefault();
+    if (emailInput.trim()) {
+      setSubscribed(true);
+      setEmailInput('');
+      setTimeout(() => setSubscribed(false), 3000);
+    }
+  };
+
+  // Map gallery creators from database or fallback to talentProfiles
+  const galleryCreators = creators.length > 0
+    ? creators.map((c) => ({
+      _id: c._id,
+      name: c.name,
+      imageUrl: c.imageUrl,
+      followersCount: c.followersCount || '800K',
+      reach: c.reach || '3M+',
+      engagementRate: c.engagementRate || '7.2%'
+    }))
+    : talentProfiles.map((item, idx) => ({
+      _id: `mock-creator-${idx}`,
+      name: item.name,
+      imageUrl: item.image,
+      followersCount: idx === 0 ? '2.4M' : idx === 1 ? '1.8M' : idx === 2 ? '950K' : idx === 3 ? '1.2M' : idx === 4 ? '3.1M' : idx === 5 ? '880K' : '2.1M',
+      reach: idx === 0 ? '12M+' : idx === 1 ? '9.5M+' : idx === 2 ? '5.2M+' : idx === 3 ? '6.8M+' : idx === 4 ? '15M+' : idx === 5 ? '4.8M+' : '10M+',
+      engagementRate: idx === 0 ? '8.4%' : idx === 1 ? '7.2%' : idx === 2 ? '9.1%' : idx === 3 ? '7.8%' : idx === 4 ? '8.9%' : idx === 5 ? '6.7%' : '7.5%'
+    }));
+
+  // Map display brands from fetched or fallback mock list
+  const displayBrands = brands.length > 0
+    ? brands.map((b) => ({
+      name: b.name,
+      logo: b.logoUrl ? resolveImg(b.logoUrl) : null,
+      desc: 'Partner Brand',
+      isDb: true,
+      link: b.websiteLink
+    }))
+    : MOCK_HERO_BRANDS;
+
+  // Services list content (no icons, matching design console)
+  const SERVICES_LIST = [
+    { title: 'Influencer Marketing', desc: 'Match with targeted influencers, align campaigns, and track results automatically.', id: 'OPS-01' },
+    { title: 'Brand Promotions', desc: 'Maximize product awareness across channels using creator generated short-form assets.', id: 'MKTG-02' },
+    { title: 'Campaign Management', desc: 'Secure operational logistics from creation briefs to contract payouts.', id: 'MGMT-03' },
+    { title: 'Content Strategy', desc: 'Structure media hooks and timelines customized to retain consumer interest.', id: 'ART-04' },
+    { title: 'Social Growth', desc: 'Expand organic channel visibility using verified algorithms and sharing workflows.', id: 'GROW-05' },
+    { title: 'Analytics', desc: 'Track CPC, CTR, CPV, and conversions on a live platform dashboard.', id: 'DATA-06' }
+  ];
+
+  // GSAP Entrance timelines and reveals
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // 1. Hero timeline animation
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+      tl.fromTo('.hero-badge-anim',
+        { opacity: 0, y: -15 },
+        { opacity: 1, y: 0, duration: 0.4, delay: 0.1 }
+      )
+        .fromTo('.hero-title-anim',
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.5 },
+          '-=0.3'
+        )
+        .fromTo('.hero-desc-anim',
+          { opacity: 0, y: 10 },
+          { opacity: 1, y: 0, duration: 0.4 },
+          '-=0.45'
+        )
+        .fromTo('.hero-btn-anim',
+          { opacity: 0, y: 8 },
+          { opacity: 1, y: 0, duration: 0.3, stagger: 0.08 },
+          '-=0.35'
+        )
+        .fromTo('.three-d-gallery-wrapper',
+          { opacity: 0, y: 30, scale: 0.98 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: 'power3.out' },
+          '-=0.5'
+        );
+    });
+
+    // 2. Intersection Observer for Scroll Reveals
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1,
+    };
+
+    const handleIntersect = (entries, observer) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const target = entry.target;
+          target.classList.add('scroll-reveal-active');
+          observer.unobserve(target);
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(handleIntersect, observerOptions);
+    const elements = document.querySelectorAll('.scroll-reveal-left, .scroll-reveal-right, .scroll-reveal-up-custom');
+    elements.forEach((el) => observer.observe(el));
+
+    return () => {
+      ctx.revert();
+      observer.disconnect();
+    };
+  }, [brandsLoading, creatorsLoading]);
+
+  return (
+    <div className="minimal-home-container relative min-h-screen">
+      {/* Background ambient spots */}
+      <div className="glow-spot glow-spot-yellow" />
+      <div className="glow-spot glow-spot-purple" />
+      <div className="glow-spot glow-spot-cyan" />
+
+      {/* Mesh Background */}
+      <div className="minimal-bg-mesh" />
+
+      {/* Cursor Particles Background */}
+      <CursorParticlesBackground />
+
+      {/* ── HERO SECTION ── */}
+      <section className="relative pt-[36px] md:pt-[64px] pb-12 px-4 md:px-8 border-b border-white/5 z-10 overflow-hidden">
+        <div className="max-w-7xl mx-auto flex flex-col items-center">
+
+          {/* Centered Column: Text & Action Hub */}
+          <div className="text-center flex flex-col items-center justify-center pt-0 pb-6 px-2 max-w-4xl">
+            <div className="hero-badge-anim hidden"></div>
+
+            <h1 className="hero-title-anim text-4xl sm:text-5xl md:text-[64px] font-black text-white tracking-tight leading-[1.05] uppercase">
+              Connecting Brands With <span className="accent-yellow-text">Elite Creators</span>
+            </h1>
+
+            <p className="hero-desc-anim text-xs sm:text-sm md:text-base text-white/60 font-medium max-w-2xl mx-auto mt-6 leading-relaxed">
+              We drive viral campaign operations and track verified performance metrics.
+            </p>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-wrap gap-4 justify-center items-center mt-10 z-20">
+              <Link
+                to="/get-started"
+                className="hero-btn-anim btn-yellow px-9 py-4 rounded-full text-xs uppercase tracking-widest"
+              >
+                Get Started
+              </Link>
+
+              <Link
+                to="/creators"
+                className="hero-btn-anim btn-outline px-9 py-4 rounded-full text-xs uppercase tracking-widest"
+              >
+                Explore Influencers
+              </Link>
+            </div>
+          </div>
+
+          {/* Centered 3D curved gallery with scanning left/right split */}
+          <ThreeDCurvedGallery creators={galleryCreators} brands={displayBrands} />
+
+        </div>
+      </section>
+
+      {/* ── INFINITE MARQUEE (GIF strip) ── */}
+      <InfiniteMarquee />
+
+      {/* ── TESTIMONIAL QUOTE SECTION (Chris Halaska parallax) ── */}
+      <TestimonialSection />
+
+      {/* ── PRICING SECTION ── */}
+      <PricingSection />
+
+      {/* ── TESTIMONIAL CAROUSEL ── */}
+      <TestimonialCarousel />
+
+      {/* ── PROJECTS SECTION ── */}
+      <ProjectsSection />
+
+      {/* ── PARTNER SECTION ── */}
+      <PartnerSection />
+
+      {/* ── EngineTech SITE FOOTER ── */}
+      <EngineTechFooter />
+
+      {/* ── FIXED BOTTOM NAV ── */}
+      <BottomNav />
+    </div>
+  );
+}
